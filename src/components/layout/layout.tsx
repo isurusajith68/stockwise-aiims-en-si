@@ -2,6 +2,7 @@ import { useState, useContext } from "react";
 import { NavLink } from "react-router-dom";
 import {
   BarChart3,
+  FileBarChart2,
   Package,
   Home,
   Settings as SettingsIcon,
@@ -11,6 +12,7 @@ import {
   Menu,
   X,
   ShoppingCart,
+  DollarSign,
 } from "lucide-react";
 import { LanguageContext } from "@/lib/language-context";
 import { Button } from "@/components/ui/button";
@@ -68,10 +70,22 @@ export function Layout({ children }: LayoutProps) {
       path: "/sales",
     },
     {
+      id: "expenses",
+      label: translations.expenses,
+      icon: DollarSign,
+      path: "/expenses",
+    },
+    {
       id: "reports",
       label: translations.reports,
-      icon: BarChart3,
+      icon: FileBarChart2,
       path: "/reports",
+    },
+    {
+      id: "ai-insights",
+      label: translations.aiInsights.title || "AI Insights",
+      icon: BarChart3,
+      path: "/ai-insights",
     },
     {
       id: "settings",
@@ -130,8 +144,10 @@ export function Layout({ children }: LayoutProps) {
                   to={item.path}
                   className={({ isActive }) =>
                     cn(
-                      "w-full flex items-center justify-start rounded-md transition-colors",
-                      sidebarCollapsed ? "px-2" : "px-4",
+                      "w-full flex items-center  rounded-md transition-colors",
+                      sidebarCollapsed
+                        ? "px-2 justify-center"
+                        : "px-4 justify-start",
                       isActive
                         ? "bg-primary text-primary-foreground"
                         : "hover:bg-muted",
@@ -143,7 +159,7 @@ export function Layout({ children }: LayoutProps) {
                 >
                   <item.icon
                     className={cn(
-                      "h-5 w-5",
+                      "h-5 w-5 text-center",
                       sidebarCollapsed ? "mr-0" : "mr-2"
                     )}
                   />
@@ -188,12 +204,12 @@ export function Layout({ children }: LayoutProps) {
         <nav className="flex-1 overflow-y-auto py-4">
           <ul className="space-y-2 px-2">
             {navItems.map((item) => (
-              <li key={item.id}>
+              <li key={item.id} className="flex flex-row items-center">
                 <NavLink
                   to={item.path}
                   className={({ isActive }) =>
                     cn(
-                      "w-full flex items-center justify-start rounded-md transition-colors px-4",
+                      "w-full flex items-center rounded-md transition-colors px-4",
                       isActive
                         ? "bg-primary text-primary-foreground"
                         : "hover:bg-muted",
@@ -203,7 +219,9 @@ export function Layout({ children }: LayoutProps) {
                   onClick={() => setMobileSidebarOpen(false)}
                   end={item.path === "/dashboard"}
                 >
-                  <item.icon className="h-5 w-5 mr-2" />
+                  <span className="flex-shrink-0 flex items-center justify-center h-10 w-10">
+                    <item.icon className="h-5 w-5" />
+                  </span>
                   <span>{item.label}</span>
                 </NavLink>
               </li>

@@ -23,6 +23,7 @@ import {
   SelectItem,
   SelectValue,
 } from "@/components/ui/select";
+import { RecentSalesTable } from "../reports/components/RecentSalesTable";
 
 const products: ProductType[] = [
   {
@@ -166,21 +167,22 @@ export default function SalesPage() {
   };
 
   return (
-    <div className="p-6 max-w-6xl mx-auto space-y-8 bg-card text-card-foreground">
-      {/* Sales Form with toggle */}
+    <div className="">
       <div className="bg-card text-card-foreground rounded shadow">
         <div
-          className="p-4 font-medium flex justify-between items-center cursor-pointer text-card-foreground"
+          className="font-medium flex justify-between items-center cursor-pointer text-card-foreground"
           onClick={() => setShowSaleForm(!showSaleForm)}
         >
-          <h2 className="text-lg">{translations.recordSale}</h2>
+          <h1 className="text-3xl font-bold tracking-tight">
+            {translations.recordSale}
+          </h1>
           {showSaleForm ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
         </div>
         {showSaleForm && (
           <Form {...form}>
             <form
               onSubmit={form.handleSubmit(onSubmit)}
-              className="p-4 space-y-4 border-t border-border"
+              className="p-4 space-y-4 border-t border-border mt-4"
             >
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 <FormField
@@ -349,6 +351,11 @@ export default function SalesPage() {
           </Form>
         )}
       </div>
+      <RecentSalesTable
+        sales={sales}
+        products={inventory}
+        translations={translations}
+      />
     </div>
   );
 }

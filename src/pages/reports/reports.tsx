@@ -370,11 +370,6 @@ export function Reports() {
             products={products}
             translations={translations}
           />
-          <RecentSalesTable
-            sales={sales}
-            products={products}
-            translations={translations}
-          />
         </TabsContent>
 
         <TabsContent value="inventory">

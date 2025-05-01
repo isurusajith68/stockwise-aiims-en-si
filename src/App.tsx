@@ -14,6 +14,8 @@ import { useLocalStorage } from "@/hooks/use-local-storage";
 import { Language, translations } from "@/lib/translations";
 import { LanguageContext } from "@/lib/language-context";
 import SalesPage from "@/pages/sales/sales";
+import ExpensesPage from "@/pages/expenses/expenses";
+import AIInsights from "./pages/AIInsights/AIInsights";
 
 function App() {
   const [loading, setLoading] = useState(true);
@@ -54,6 +56,19 @@ function App() {
               <Route path="/reports" element={<Reports />} />
               <Route path="/settings" element={<Settings />} />
               <Route path="/sales" element={<SalesPage />} />
+              <Route path="/expenses" element={<ExpensesPage />} />
+              <Route
+                path="/ai-insights"
+                element={
+                  <AIInsights
+                    products={[]}
+                    sales={[]}
+                    expenses={[]}
+                    language={language}
+                    theme="light"
+                  />
+                }
+              />
             </Routes>
           </Layout>
         </BrowserRouter>
