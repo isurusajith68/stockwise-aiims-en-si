@@ -62,6 +62,12 @@ export function Layout({ children }: LayoutProps) {
       path: "/orders",
     },
     {
+      id: "sales",
+      label: translations.sales,
+      icon: BarChart3,
+      path: "/sales",
+    },
+    {
       id: "reports",
       label: translations.reports,
       icon: BarChart3,

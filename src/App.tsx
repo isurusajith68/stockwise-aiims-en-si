@@ -13,6 +13,7 @@ import { LoadingScreen } from "@/components/ui/loading-screen";
 import { useLocalStorage } from "@/hooks/use-local-storage";
 import { Language, translations } from "@/lib/translations";
 import { LanguageContext } from "@/lib/language-context";
+import SalesPage from "@/pages/sales/sales";
 
 function App() {
   const [loading, setLoading] = useState(true);
@@ -52,6 +53,7 @@ function App() {
               <Route path="/orders" element={<Orders />} />
               <Route path="/reports" element={<Reports />} />
               <Route path="/settings" element={<Settings />} />
+              <Route path="/sales" element={<SalesPage />} />
             </Routes>
           </Layout>
         </BrowserRouter>

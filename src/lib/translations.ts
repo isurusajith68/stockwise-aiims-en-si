@@ -24,10 +24,16 @@ export const translations = {
     minutesAgo: "minutes ago",
     vs: "vs",
     previousMonth: "Previous Month",
+    regular: "Regular",
+    wholesale: "Wholesale",
+    new: "New",
+    cash: "Cash",
+    credit: "Credit",
+    online: "Online",
 
     // Dashboard
     totalProducts: "Total Products",
-    lowStock: "Low Stock",
+    lowStock: "Low Stock Items",
     sales: "Sales",
     pendingOrders: "Pending Orders",
 
@@ -176,6 +182,26 @@ export const translations = {
     system: "System",
     toggleTheme: "Toggle theme",
     toggleLanguage: "Toggle language",
+
+    // Sales Page
+    salesTracking: "Sales Tracking",
+    recordSale: "Record Sale",
+    salesAnalytics: "Sales Analytics",
+    totalRevenue: "Total Revenue",
+    bestSellingProducts: "Best-Selling Products (Bar Chart)",
+    salesOverTime: "Sales Over Time (Line Chart)",
+    customerType: "Customer Type",
+    paymentMethod: "Payment Method",
+    discount: "Discount (%)",
+    showFilters: "Show Filters",
+    hideFilters: "Hide Filters",
+    printReport: "Print Report",
+    recentSales: "Recent Sales",
+    revenueByPayment: "Revenue by Payment Method",
+    categoryPerformance: "Category Performance",
+    salesForecast: "30-Day Sales Forecast",
+    inventoryAlert: "Inventory Alert",
+    criticalStock: "Critical Stock Items",
   },
 
   si: {
@@ -201,10 +227,16 @@ export const translations = {
     minutesAgo: "මිනිත්තු පෙර",
     vs: "එදිරිව",
     previousMonth: "පෙර මාසය",
+    regular: "සාමාන්‍ය",
+    wholesale: "තොග",
+    new: "නව",
+    cash: "මුදල්",
+    credit: "ණය",
+    online: "මාර්ගගත",
 
     // Dashboard
     totalProducts: "මුළු නිෂ්පාදන",
-    lowStock: "අඩු තොග",
+    lowStock: "අඩු තොග අයිතම",
     sales: "විකුණුම්",
     pendingOrders: "අපේක්ෂිත ඇණවුම්",
 
@@ -354,5 +386,25 @@ export const translations = {
     system: "පද්ධති",
     toggleTheme: "තේමාව මාරු කරන්න",
     toggleLanguage: "භාෂාව මාරු කරන්න",
+
+    // Sales Page
+    salesTracking: "විකුණුම් නිරීක්ෂණය",
+    recordSale: "විකුණුම සටහන් කරන්න",
+    salesAnalytics: "විකුණුම් විශ්ලේෂණය",
+    totalRevenue: "මුළු ආදායම",
+    bestSellingProducts: "හොඳම විකුණුම් නිෂ්පාදන (තීරු සටහන)",
+    salesOverTime: "කාලය අනුව විකුණුම් (රේඛා සටහන)",
+    customerType: "පාරිභෝගික වර්ගය",
+    paymentMethod: "ගෙවීම් ක්‍රමය",
+    discount: "වට්ටම් (%)",
+    showFilters: "පෙරහන් පෙන්වන්න",
+    hideFilters: "පෙරහන් සඟවන්න",
+    printReport: "වාර්තාව මුද්‍රණය කරන්න",
+    recentSales: "මෑත විකුණුම්",
+    revenueByPayment: "ගෙවීම් ක්‍රමය අනුව ආදායම",
+    categoryPerformance: "වර්ගය අනුව කාර්ය සාධනය",
+    salesForecast: "දින 30 විකුණුම් පුරෝකථනය",
+    inventoryAlert: "තොග අනතුරු ඇඟවීම",
+    criticalStock: "අවදානම් තොග අයිතම",
   },
 };
