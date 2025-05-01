@@ -25,9 +25,9 @@ Easily switch between languages through the UI. More language support can be add
 
 ## 🛠️ Tech Stack
 
-- **Frontend**: React / Next.js / ShadCN UI
-- **Backend**: Node.js / Express.js / MongoDB or PostgreSQL
-- **AI Services**: TensorFlow.js or Python ML integration (TBD)
+- **Frontend**: Reac / ShadCN UI
+- **Backend**: Node.js / Express.js / MongoDB
+- **AI Services**: TensorFlow.js
 - **Localization**: `react-i18next` or equivalent
 
 ## 📦 Installation
