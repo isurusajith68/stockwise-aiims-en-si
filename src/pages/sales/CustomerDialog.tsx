@@ -1,4 +1,3 @@
-import { useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -32,7 +31,18 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Phone, Mail, MapPin } from "lucide-react";
-import { Customer, CustomerFormValues } from "./types";
+import { Customer } from "./types";
+import { z } from "zod";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  Form,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormMessage,
+} from "@/components/ui/form";
 
 interface CustomerDialogProps {
   open: boolean;
@@ -44,9 +54,22 @@ interface CustomerDialogProps {
   setShowSaleDialog: (show: boolean) => void;
   searchTerm: string;
   setSearchTerm: (term: string) => void;
-  filteredCustomers: Customer[];
-  translations: any;
+  translations: Record<string, string>;
 }
+
+const customerSchema = z.object({
+  customerName: z.string().min(1, "Customer name is required"),
+  customerType: z.enum(["regular", "wholesale", "new"]),
+  primaryPhone: z.string().min(1, "Primary phone is required"),
+  secondaryPhone: z.string().optional(),
+  email: z.string().email("Invalid email").optional().or(z.literal("")),
+  country: z.string().optional(),
+  district: z.string().optional(),
+  city: z.string().optional(),
+  address: z.string().optional(),
+});
+
+type CustomerFormSchema = z.infer<typeof customerSchema>;
 
 export function CustomerDialog({
   open,
@@ -57,70 +80,48 @@ export function CustomerDialog({
   setShowSaleDialog,
   searchTerm,
   setSearchTerm,
-  filteredCustomers,
   translations,
 }: CustomerDialogProps) {
-  const [customerFormData, setCustomerFormData] = useState<CustomerFormValues>({
-    customerName: "",
-    customerType: "regular",
-    primaryPhone: "",
-    secondaryPhone: "",
-    email: "",
-    country: "",
-    district: "",
-    city: "",
-    address: "",
+  const form = useForm<CustomerFormSchema>({
+    resolver: zodResolver(customerSchema),
+    defaultValues: {
+      customerName: "",
+      customerType: "regular",
+      primaryPhone: "",
+      secondaryPhone: "",
+      email: "",
+      country: "",
+      district: "",
+      city: "",
+      address: "",
+    },
   });
 
-  const handleCustomerFormChange = (
-    field: keyof CustomerFormValues,
-    value: string
-  ) => {
-    setCustomerFormData((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
-  };
-
-  const handleCustomerSubmit = () => {
-    console.log(customerFormData);
-    if (!customerFormData.customerName.trim()) {
-      alert("Customer name is required");
-      return;
-    }
-
-    if (!customerFormData.primaryPhone.trim()) {
-      alert("Primary phone number is required");
-      return;
-    }
-
+  const handleCustomerSubmit = (data: CustomerFormSchema) => {
     const newCustomer: Customer = {
       id: Date.now().toString(),
-      name: customerFormData.customerName,
-      type: customerFormData.customerType,
+      name: data.customerName,
+      type: data.customerType,
       contactInfo: {
-        primaryPhone: customerFormData?.primaryPhone,
-        secondaryPhone: customerFormData.secondaryPhone,
-        email: customerFormData.email,
+        primaryPhone: data.primaryPhone || "",
+        secondaryPhone: data.secondaryPhone || "",
+        email: data.email || "",
       },
       locationInfo: {
-        country: customerFormData.country,
-        district: customerFormData.district,
-        city: customerFormData.city,
-        address: customerFormData.address,
+        country: data.country || "",
+        district: data.district || "",
+        city: data.city || "",
+        address: data.address || "",
       },
     };
-
-    const existingCustomer = customers.find(
-      (c) =>
-        c.contactInfo &&
-        c.contactInfo.primaryPhone === customerFormData.primaryPhone
-    );
-
+    const existingCustomer =
+      customers &&
+      customers.find(
+        (c) => c.contactInfo && c.contactInfo.primaryPhone === data.primaryPhone
+      );
     if (!existingCustomer) {
-      setCustomers([...customers, newCustomer]);
+      setCustomers([...(customers || []), newCustomer]);
     }
-
     setCurrentCustomer(newCustomer);
     onOpenChange(false);
     setShowSaleDialog(true);
@@ -148,178 +149,206 @@ export function CustomerDialog({
           </TabsList>
 
           <TabsContent value="new" className="space-y-4 mt-4">
-            <div className="grid grid-cols-2 gap-4">
-              {/* Basic Info */}
-              <div className="space-y-4">
-                <div className="form-item">
-                  <label>{translations.customerName}</label>
-                  <div className="form-control">
-                    <Input
-                      value={customerFormData.customerName}
-                      onChange={(e) =>
-                        handleCustomerFormChange("customerName", e.target.value)
-                      }
-                      placeholder="John Doe"
-                      required
+            <Form {...form}>
+              <form
+                onSubmit={form.handleSubmit(handleCustomerSubmit)}
+                className="space-y-4"
+                autoComplete="off"
+              >
+                <div className="grid grid-cols-2 gap-4">
+                  {/* Basic Info */}
+                  <div className="space-y-4">
+                    <FormField
+                      control={form.control}
+                      name="customerName"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>{translations.customerName}</FormLabel>
+                          <FormControl>
+                            <Input {...field} placeholder="John Doe" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="customerType"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>{translations.customerType}</FormLabel>
+                          <FormControl>
+                            <Select
+                              value={field.value}
+                              onValueChange={field.onChange}
+                            >
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select customer type" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="regular">
+                                  {translations.regular}
+                                </SelectItem>
+                                <SelectItem value="wholesale">
+                                  {translations.wholesale}
+                                </SelectItem>
+                                <SelectItem value="new">
+                                  {translations.new}
+                                </SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  {/* Contact Info */}
+                  <div className="space-y-4">
+                    <FormField
+                      control={form.control}
+                      name="primaryPhone"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>{translations.primaryPhone}</FormLabel>
+                          <FormControl>
+                            <Input {...field} placeholder="+1 (555) 123-4567" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="secondaryPhone"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>{translations.secondaryPhone}</FormLabel>
+                          <FormControl>
+                            <Input {...field} placeholder="+1 (555) 987-6543" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="email"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>{translations.emailAddress}</FormLabel>
+                          <FormControl>
+                            <Input
+                              {...field}
+                              type="email"
+                              placeholder="john.doe@example.com"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
                     />
                   </div>
                 </div>
 
-                <div className="form-item">
-                  <label>{translations.customerType}</label>
-                  <Select
-                    value={customerFormData.customerType}
-                    onValueChange={(value) =>
-                      handleCustomerFormChange("customerType", value)
-                    }
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select customer type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="regular">
-                        {translations.regular}
-                      </SelectItem>
-                      <SelectItem value="wholesale">
-                        {translations.wholesale}
-                      </SelectItem>
-                      <SelectItem value="new">{translations.new}</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
+                <Accordion type="single" collapsible className="w-full">
+                  <AccordionItem value="location">
+                    <AccordionTrigger>
+                      <div className="flex items-center">
+                        <MapPin className="mr-2 h-4 w-4" />
+                        <span>{translations.locationInfo}</span>
+                      </div>
+                    </AccordionTrigger>
+                    <AccordionContent>
+                      <div className="grid grid-cols-2 gap-4 pt-4">
+                        <FormField
+                          control={form.control}
+                          name="country"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>{translations.country}</FormLabel>
+                              <FormControl>
+                                <Input {...field} placeholder="United States" />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
 
-              {/* Contact Info */}
-              <div className="space-y-4">
-                <div className="form-item">
-                  <label>{translations.primaryPhone}</label>
-                  <div className="form-control">
-                    <Input
-                      value={customerFormData.primaryPhone}
-                      onChange={(e) =>
-                        handleCustomerFormChange("primaryPhone", e.target.value)
-                      }
-                      placeholder="+1 (555) 123-4567"
-                      required
-                    />
-                  </div>
-                </div>
+                        <FormField
+                          control={form.control}
+                          name="district"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>{translations.district}</FormLabel>
+                              <FormControl>
+                                <Input {...field} placeholder="California" />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
 
-                <div className="form-item">
-                  <label>{translations.secondaryPhone}</label>
-                  <div className="form-control">
-                    <Input
-                      value={customerFormData.secondaryPhone}
-                      onChange={(e) =>
-                        handleCustomerFormChange(
-                          "secondaryPhone",
-                          e.target.value
-                        )
-                      }
-                      placeholder="+1 (555) 987-6543"
-                    />
-                  </div>
-                </div>
+                        <FormField
+                          control={form.control}
+                          name="city"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>{translations.city}</FormLabel>
+                              <FormControl>
+                                <Input {...field} placeholder="San Francisco" />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
 
-                <div className="form-item">
-                  <label>{translations.emailAddress}</label>
-                  <div className="form-control">
-                    <Input
-                      type="email"
-                      value={customerFormData.email}
-                      onChange={(e) =>
-                        handleCustomerFormChange("email", e.target.value)
-                      }
-                      placeholder="john.doe@example.com"
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <Accordion type="single" collapsible className="w-full">
-              <AccordionItem value="location">
-                <AccordionTrigger>
-                  <div className="flex items-center">
-                    <MapPin className="mr-2 h-4 w-4" />
-                    <span>{translations.locationInfo}</span>
-                  </div>
-                </AccordionTrigger>
-                <AccordionContent>
-                  <div className="grid grid-cols-2 gap-4 pt-4">
-                    <div className="form-item">
-                      <label>{translations.country}</label>
-                      <div className="form-control">
-                        <Input
-                          value={customerFormData.country}
-                          onChange={(e) =>
-                            handleCustomerFormChange("country", e.target.value)
-                          }
-                          placeholder="United States"
+                        <FormField
+                          control={form.control}
+                          name="address"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>{translations.address}</FormLabel>
+                              <FormControl>
+                                <Input
+                                  {...field}
+                                  placeholder="123 Main St, Apt 4B"
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
                         />
                       </div>
-                    </div>
-
-                    <div className="form-item">
-                      <label>{translations.district}</label>
-                      <div className="form-control">
-                        <Input
-                          value={customerFormData.district}
-                          onChange={(e) =>
-                            handleCustomerFormChange("district", e.target.value)
-                          }
-                          placeholder="California"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="form-item">
-                      <label>{translations.city}</label>
-                      <div className="form-control">
-                        <Input
-                          value={customerFormData.city}
-                          onChange={(e) =>
-                            handleCustomerFormChange("city", e.target.value)
-                          }
-                          placeholder="San Francisco"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="form-item">
-                      <label>{translations.address}</label>
-                      <div className="form-control">
-                        <Input
-                          value={customerFormData.address}
-                          onChange={(e) =>
-                            handleCustomerFormChange("address", e.target.value)
-                          }
-                          placeholder="123 Main St, Apt 4B"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </AccordionContent>
-              </AccordionItem>
-            </Accordion>
+                    </AccordionContent>
+                  </AccordionItem>
+                </Accordion>
+                <DialogFooter>
+                  <Button type="submit">{translations.continue}</Button>
+                </DialogFooter>
+              </form>
+            </Form>
           </TabsContent>
 
           <TabsContent value="existing" className="space-y-4 mt-4">
             <div className="form-item">
               <label>{translations.searchCustomer}</label>
-              <div className="form-control">
+              <div className="form-control mt-2">
                 <Input
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   placeholder={translations.searchByNamePhoneEmail}
                 />
               </div>
-              <span className="form-description">
+              <span className="form-description text-xs mt-1">
                 {translations.searchExistingCustomers}
               </span>
             </div>
 
-            {filteredCustomers.length > 0 && (
+            {customers && customers.length > 0 && (
               <div className="border rounded-md h-64 overflow-y-auto">
                 <Table>
                   <TableHeader>
@@ -331,7 +360,7 @@ export function CustomerDialog({
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {filteredCustomers.map((customer) => (
+                    {customers.map((customer) => (
                       <TableRow key={customer.id}>
                         <TableCell>{customer.name}</TableCell>
                         <TableCell>
@@ -353,7 +382,7 @@ export function CustomerDialog({
                         </TableCell>
                         <TableCell>
                           <Button
-                            variant="ghost"
+                            variant="outline"
                             size="sm"
                             onClick={() => selectCustomer(customer)}
                           >
@@ -368,12 +397,6 @@ export function CustomerDialog({
             )}
           </TabsContent>
         </Tabs>
-
-        <DialogFooter>
-          <Button onClick={handleCustomerSubmit}>
-            {translations.continue}
-          </Button>
-        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

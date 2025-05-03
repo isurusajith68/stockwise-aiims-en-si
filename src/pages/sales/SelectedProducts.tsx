@@ -72,7 +72,7 @@ export function SelectedProducts({
             </p>
           </div>
         ) : (
-          <div className="max-h-[300px] overflow-y-auto">
+          <div className="max-h-[400px] overflow-y-auto">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -121,7 +121,7 @@ export function SelectedProducts({
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
+                          className="h-8 w-8  transition-opacity"
                           onClick={() => removeProductFromSale(item.productId)}
                         >
                           <Trash2 className="h-4 w-4" />

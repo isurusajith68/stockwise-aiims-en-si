@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { Customer, Sale, SaleItem } from "./types";
 import { SaleDialog } from "./SaleDialog";
 import { CustomerDialog } from "./CustomerDialog";
+import { Button } from "@/components/ui/button";
 
 const products: ProductType[] = [
   {
@@ -98,7 +99,6 @@ export default function AddSalePage() {
       }
     });
     setInventory(updatedInventory);
-
   };
 
   return (
@@ -107,6 +107,17 @@ export default function AddSalePage() {
         <h1 className="text-3xl font-bold tracking-tight">
           {translations.newSale || "New Sale"}
         </h1>
+        <Button
+          className="btn btn-primary"
+          onClick={() => {
+            handleSaleSubmit();
+            router("/sales");
+          }}
+          variant="outline"
+          size="sm"
+        >
+          {translations.back || "Back"}
+        </Button>
       </div>
 
       <CustomerDialog

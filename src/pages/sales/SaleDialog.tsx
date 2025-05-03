@@ -101,7 +101,6 @@ export function SaleDialog({
     );
   };
 
-  // Calculate totals
   const subtotal = selectedProducts.reduce(
     (sum, item) => sum + item.price * item.quantity,
     0
@@ -115,12 +114,17 @@ export function SaleDialog({
   const total = selectedProducts.reduce((sum, item) => sum + item.total, 0);
 
   return (
-    <Card className="border-none shadow-none">
-      <CardContent className="">
-        <CardHeader className="px-0">
-          <CardTitle className="text-xl font-semibold">
-            {translations.recordSale}{" "}
-            {currentCustomer && `- ${currentCustomer.name}`}
+    <Card className="border-none shadow-none mt-4">
+      <CardContent className="p-4 sm:p-6">
+        <CardHeader className="px-0 pt-0">
+          <CardTitle className="text-lg font-bold flex items-center">
+            <ShoppingCart className="h-5 w-5 mr-2 text-primary" />
+            {translations.recordSale || "Record Sale"}
+            {currentCustomer && (
+              <Badge variant="outline" className="ml-2 px-2 py-1 rounded-full">
+                {currentCustomer.name}
+              </Badge>
+            )}
           </CardTitle>
         </CardHeader>
 
@@ -132,7 +136,7 @@ export function SaleDialog({
               openCustomerDialog={openCustomerDialog}
             />
 
-            <div className="grid grid-cols-1 ">
+            <div className="flex flex-col gap-4 mt-4">
               <ProductSearch
                 productSearch={productSearch}
                 setProductSearch={setProductSearch}
@@ -143,7 +147,7 @@ export function SaleDialog({
                 translations={translations}
               />
 
-              <div className="flex flex-col gap-4">
+              <div className="flex flex-col gap-4 ">
                 <div className="flex justify-between items-center">
                   <div>
                     <h3 className="text-lg font-medium">
@@ -157,11 +161,7 @@ export function SaleDialog({
                     </p>
                   </div>
 
-                  <Sheet
-                  
-                    open={isDrawerOpen}
-                    onOpenChange={setIsDrawerOpen}
-                  >
+                  <Sheet open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
                     <SheetTrigger asChild>
                       <Button
                         variant="default"
@@ -170,10 +170,10 @@ export function SaleDialog({
                         <ShoppingCart className="h-5 w-5 mr-2 group-hover:scale-110 transition-transform duration-300" />
                         {selectedProducts.length > 0 ? (
                           <>
-                            {translations.reviewCart || "Review Cart"}
+                            {translations.reviewCart || "Cart"}
                             <Badge
                               variant="secondary"
-                              className="ml-2 bg-primary-foreground text-primary"
+                              className="ml-2 bg-primary-foreground text-primary text-xs font-semibold px-2 py-0.5 rounded-full"
                             >
                               {selectedProducts.length}
                             </Badge>
@@ -184,7 +184,7 @@ export function SaleDialog({
                       </Button>
                     </SheetTrigger>
 
-                    <SheetContent className="p-2">
+                    <SheetContent className="sm:max-w-lg p-6">
                       <SheetHeader className="border-b pb-4">
                         <SheetTitle className="text-xl font-semibold flex items-center">
                           <ShoppingCart className="h-5 w-5 mr-2" />
@@ -192,7 +192,7 @@ export function SaleDialog({
                         </SheetTitle>
                       </SheetHeader>
 
-                      <div className="">
+                      <div className="flex flex-col h-[calc(100vh-10rem)] overflow-auto">
                         <SelectedProducts
                           selectedProducts={selectedProducts}
                           inventory={inventory}
@@ -202,89 +202,94 @@ export function SaleDialog({
                           discountTotal={discountTotal}
                           total={total}
                         />
-
-                        <div className="my-6 border-t pt-6">
-                          <SaleDetails
-                            paymentMethod={paymentMethod}
-                            setPaymentMethod={setPaymentMethod}
-                            saleDate={saleDate}
-                            setSaleDate={setSaleDate}
-                            notes={notes}
-                            setNotes={setNotes}
-                            translations={translations}
-                          />
-                        </div>
                       </div>
 
-                      <SheetFooter className="border-t pt-4">
-                        <Button
-                          className="w-full"
-                          onClick={() => {
-                            handleSaleSubmit();
-                            setIsDrawerOpen(false);
-                          }}
-                          disabled={selectedProducts.length === 0}
-                          size="lg"
-                        >
-                          {translations.recordSale || "Record Sale"}
-                        </Button>
+                      <SheetFooter className="border-t pt-4 gap-3 mt-4">
                         <SheetClose asChild>
-                          <Button variant="outline">
+                          <Button
+                            variant="outline"
+                            className="w-full sm:w-auto"
+                          >
                             {translations.cancel || "Cancel"}
                           </Button>
                         </SheetClose>
+                        <Button
+                          className="w-full sm:w-auto"
+                          onClick={() => setIsDrawerOpen(false)}
+                        >
+                          {translations.continue || "Continue"}
+                        </Button>
                       </SheetFooter>
                     </SheetContent>
                   </Sheet>
                 </div>
 
                 {selectedProducts.length > 0 ? (
-                  <div className="rounded-lg border p-4 flex justify-between">
-                    <div>
-                      <p className="text-sm font-medium">
-                        {translations.subtotal || "Subtotal"}
-                      </p>
-                      <p className="text-2xl font-bold">
-                        ${subtotal.toFixed(2)}
-                      </p>
-                      {discountTotal > 0 && (
-                        <p className="text-sm text-muted-foreground">
-                          {translations.discount || "Discount"}: -$
-                          {discountTotal.toFixed(2)}
-                        </p>
-                      )}
+                  <div className="">
+                    <div className="mb-6">
+                      <SaleDetails
+                        paymentMethod={paymentMethod}
+                        setPaymentMethod={setPaymentMethod}
+                        saleDate={saleDate}
+                        setSaleDate={setSaleDate}
+                        notes={notes}
+                        setNotes={setNotes}
+                        translations={translations}
+                      />
                     </div>
-                    <div className="text-right">
-                      <p className="text-sm font-medium">
-                        {translations.total || "Total"}
-                      </p>
-                      <p className="text-2xl font-bold text-primary">
-                        ${total.toFixed(2)}
-                      </p>
+                    <div className="flex justify-end">
+                      <Button
+                        className="bg-primary text-white hover:bg-primary/90 transition active:scale-[0.98] "
+                        onClick={() => {
+                          handleSaleSubmit();
+                          setIsDrawerOpen(false);
+                        }}
+                        disabled={selectedProducts.length === 0}
+                        size="lg"
+                      >
+                        <ShoppingCart className="h-5 w-5 mr-2" />
+                        {translations.recordSale || "Record Sale"}
+                      </Button>
                     </div>
                   </div>
                 ) : (
-                  <div className="rounded-lg border border-dashed p-6 text-center">
-                    <p className="text-muted-foreground">
-                      {translations.noItemsSelected || "No items selected"}
+                  <div className="rounded-xl border border-dashed p-8 text-center bg-muted/10">
+                    <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-muted mb-4">
+                      <ShoppingCart className="h-6 w-6 text-muted-foreground" />
+                    </div>
+                    <h3 className="text-lg font-medium mb-1">
+                      {translations.emptyCart || "Your cart is empty"}
+                    </h3>
+                    <p className="text-sm text-muted-foreground mb-4 max-w-[400px] mx-auto">
+                      {translations.noItemsSelected ||
+                        "No items have been added to this sale yet"}
                     </p>
+                    <Button variant="outline">
+                      {translations.browseInventory || "Browse Inventory"}
+                    </Button>
                   </div>
                 )}
               </div>
             </div>
           </>
         ) : (
-          <div className="text-center p-12 bg-muted/30 rounded-lg">
-            <h3 className="text-lg font-medium mb-2">
-              {translations.noCustomerSelected}
+          <div className="text-center p-12 bg-muted/30 rounded-xl border border-dashed animate-in fade-in-50 duration-300">
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-muted mb-4">
+              <ShoppingCart className="h-6 w-6 text-muted-foreground" />
+            </div>
+            <h3 className="text-lg font-medium mb-1">
+              {translations.noCustomerSelected || "No Customer Selected"}
             </h3>
-            <p className="text-muted-foreground mb-4">
+            <p className="text-muted-foreground mb-4 max-w-[400px] mx-auto">
               {translations.selectCustomerToStart ||
                 "Select a customer to start recording a sale"}
             </p>
-            <Button onClick={() => openCustomerDialog(true)}>
-              <Plus className="h-4 w-4 mr-2" />
-              {translations.selectCustomer}
+            <Button
+              onClick={() => openCustomerDialog(true)}
+              className="group transition-all duration-200"
+            >
+              <Plus className="h-4 w-4 mr-2 group-hover:scale-110 transition-transform duration-200" />
+              {translations.selectCustomer || "Select Customer"}
             </Button>
           </div>
         )}
