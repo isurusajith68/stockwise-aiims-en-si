@@ -115,6 +115,7 @@ export default function AddSalePage() {
           }}
           variant="outline"
           size="sm"
+          type="button"
         >
           {translations.back || "Back"}
         </Button>

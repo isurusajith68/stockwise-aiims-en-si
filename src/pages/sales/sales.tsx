@@ -1,9 +1,8 @@
 import { useContext, useState } from "react";
 import { useLocalStorage } from "@/hooks/use-local-storage";
 import { LanguageContext } from "@/lib/language-context";
-import { Phone, ShoppingCart, Truck } from "lucide-react";
+import { Phone, ShoppingCart, Truck, Plus, Trash2, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -27,11 +26,9 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
-  DialogDescription,
   DialogClose,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Trash2, Eye } from "lucide-react";
 import { ProductType } from "../products/types";
 import {
   Select,
@@ -41,13 +38,28 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { FormLabel } from "@/components/ui/form";
-import { Sale } from "./types";
-import { z } from "zod";
+import {
+  Form,
+  FormField,
+  FormItem,
+  FormMessage,
+  FormLabel,
+} from "@/components/ui/form";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Form, FormField, FormItem, FormMessage } from "@/components/ui/form";
+import { z } from "zod";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import { Sale } from "./types";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+} from "@/components/ui/popover";
+import { format } from "date-fns";
 
+// Simple enum for delivery statuses
 const DELIVERY_STATUS = {
   NOT_SCHEDULED: "not_scheduled",
   SCHEDULED: "scheduled",
@@ -56,6 +68,7 @@ const DELIVERY_STATUS = {
   FAILED: "failed",
 };
 
+// Validation schema for delivery form
 const deliverySchema = z.object({
   status: z.enum([
     "not_scheduled",
@@ -65,25 +78,36 @@ const deliverySchema = z.object({
     "failed",
   ]),
   address: z.string().min(1, "Address is required"),
-  scheduledDate: z.string().optional(),
+  scheduledDate: z.string().min(1, "Scheduled Date is required"),
   notes: z.string().optional(),
   trackingInfo: z.string().optional(),
 });
+
 type DeliveryFormValues = z.infer<typeof deliverySchema>;
 
 export default function SalesPage() {
   const { translations } = useContext(LanguageContext);
   const [sales, setSales] = useLocalStorage<Sale[]>("sales", []);
   const [inventory] = useLocalStorage<ProductType[]>("inventory", []);
-  const [filter, setFilter] = useState("");
+  const [filterCustomer, setFilterCustomer] = useState("");
+  const [filterStatus, setFilterStatus] = useState("");
+  const [filterPayment, setFilterPayment] = useState("");
+  const [dateRange, setDateRange] = useState<{
+    from: Date | undefined;
+    to: Date | undefined;
+  }>({ from: undefined, to: undefined });
   const [selectedSale, setSelectedSale] = useState<Sale | null>(null);
-  const [showDialog, setShowDialog] = useState(false);
+  const [showDetailsDialog, setShowDetailsDialog] = useState(false);
   const [showDeliveryDialog, setShowDeliveryDialog] = useState(false);
+  const [selectedDeliverySale, setSelectedDeliverySale] = useState<Sale | null>(
+    null
+  );
 
-  const deliveryFormRHF = useForm<DeliveryFormValues>({
+  // Setup form with validation
+  const deliveryForm = useForm<DeliveryFormValues>({
     resolver: zodResolver(deliverySchema),
     defaultValues: {
-      status: DELIVERY_STATUS.NOT_SCHEDULED,
+      status: DELIVERY_STATUS.NOT_SCHEDULED as DeliveryFormValues["status"],
       address: "",
       scheduledDate: "",
       notes: "",
@@ -91,6 +115,7 @@ export default function SalesPage() {
     },
   });
 
+  // Helper function to format currency
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat("en-US", {
       style: "currency",
@@ -98,79 +123,62 @@ export default function SalesPage() {
     }).format(amount / 100);
   };
 
-  // Filter logic
+  // Filter sales based on all filters
   const filteredSales = sales.filter((sale) => {
-    const customerMatch = sale.customerName
-      .toLowerCase()
-      .includes(filter.toLowerCase());
-    const phoneMatch = sale.customerContactInfo?.primaryPhone?.includes(filter);
-    const productMatch = sale.items.some((item) => {
-      const product = inventory.find((p) => p.id === item.productId);
-      return (
-        product && product.name.toLowerCase().includes(filter.toLowerCase())
-      );
-    });
-    return !filter || customerMatch || phoneMatch || productMatch;
+    let match = true;
+    if (
+      filterCustomer &&
+      !sale.customerName.toLowerCase().includes(filterCustomer.toLowerCase())
+    ) {
+      match = false;
+    }
+    if (
+      filterStatus &&
+      filterStatus !== "all" &&
+      (!sale.delivery || sale.delivery.status !== filterStatus)
+    ) {
+      match = false;
+    }
+    if (
+      filterPayment &&
+      filterPayment !== "all" &&
+      sale.paymentMethod !== filterPayment
+    ) {
+      match = false;
+    }
+    if (dateRange.from) {
+      const saleDate = new Date(sale.date);
+      if (saleDate < dateRange.from) match = false;
+    }
+    if (dateRange.to) {
+      const saleDate = new Date(sale.date);
+      if (saleDate > dateRange.to) match = false;
+    }
+    return match;
   });
 
-  // Delete sale
+  // Delete sale handler
   const handleDelete = (id: number) => {
     setSales(sales.filter((sale) => sale.id !== id));
-    setShowDialog(false);
+    setShowDetailsDialog(false);
     setSelectedSale(null);
   };
 
-  // Get product name
+  // Get product name from inventory
   const getProductName = (productId: number) => {
     const product = inventory.find((p) => p.id === productId);
     return product ? product.name : "Unknown Product";
   };
 
-  // Open delivery dialog
-  const handleDeliveryClick = (sale: Sale) => {
-    setSelectedSale(sale);
-    deliveryFormRHF.reset({
-      status:
-        (sale.delivery?.status as DeliveryFormValues["status"]) ||
-        DELIVERY_STATUS.NOT_SCHEDULED,
-      address: sale.delivery?.address || "",
-      scheduledDate: sale.delivery?.scheduledDate || "",
-      notes: sale.delivery?.notes || "",
-      trackingInfo: sale.delivery?.trackingInfo || "",
-    });
-    setShowDeliveryDialog(true);
-  };
-
-  // Save delivery information
-  const saveDeliveryInfo = () => {
-    if (!selectedSale) return;
-
-    const updatedSales = sales.map((sale) => {
-      if (sale.id === selectedSale.id) {
-        return {
-          ...sale,
-          delivery: {
-            ...deliveryFormRHF.getValues(),
-          },
-        };
-      }
-      return sale;
-    });
-
-    setSales(updatedSales);
-    setShowDeliveryDialog(false);
-    setSelectedSale(null);
-  };
-
-  // Get delivery status badge variant
-  const getDeliveryStatusBadge = (status) => {
+  // Get badge variant based on delivery status
+  const getDeliveryStatusBadge = (status: DeliveryFormValues["status"]) => {
     switch (status) {
       case DELIVERY_STATUS.SCHEDULED:
         return "secondary";
       case DELIVERY_STATUS.IN_TRANSIT:
-        return "warning";
+        return "default";
       case DELIVERY_STATUS.DELIVERED:
-        return "success";
+        return "secondary";
       case DELIVERY_STATUS.FAILED:
         return "destructive";
       default:
@@ -179,7 +187,7 @@ export default function SalesPage() {
   };
 
   // Format delivery status for display
-  const formatDeliveryStatus = (status) => {
+  const formatDeliveryStatus = (status: DeliveryFormValues["status"]) => {
     switch (status) {
       case DELIVERY_STATUS.NOT_SCHEDULED:
         return translations.notScheduled || "Not Scheduled";
@@ -196,11 +204,29 @@ export default function SalesPage() {
     }
   };
 
+  // Handle delivery form submission
+  const handleDeliverySubmit = (data: DeliveryFormValues) => {
+    if (!selectedDeliverySale) return;
+
+    // Update sales with delivery info
+    const updatedSales = sales.map((sale) =>
+      sale.id === selectedDeliverySale.id
+        ? { ...sale, delivery: { ...data } }
+        : sale
+    );
+
+    setSales(updatedSales);
+    setSelectedDeliverySale({
+      ...selectedDeliverySale,
+      delivery: { ...data },
+    });
+  };
+
   return (
     <div className="space-y-6">
-      {/* Header */}
+      {/* Header section */}
       <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold tracking-tight">
+        <h1 className="text-2xl font-bold">
           {translations.salesManagement || "Sales Management"}
         </h1>
         <Button asChild>
@@ -211,20 +237,127 @@ export default function SalesPage() {
         </Button>
       </div>
 
-      {/* Filter Bar */}
-      <div className="flex items-center gap-3 mb-2">
-        <Input
-          value={filter}
-          onChange={(e) => setFilter(e.target.value)}
-          placeholder={
-            translations.searchCustomer ||
-            "Filter by customer, phone, or product..."
-          }
-          className="max-w-xs"
-        />
+      {/* Filter Controls */}
+      <div className="flex flex-wrap gap-4 mb-4 items-end">
+        <div>
+          <label className="block text-sm font-medium mb-1">
+            {translations.customer || "Customer"}
+          </label>
+          <Input
+            value={filterCustomer}
+            onChange={(e) => setFilterCustomer(e.target.value)}
+            placeholder={translations.customerName || "Customer name"}
+            className="min-w-[160px]"
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium mb-1">
+            {translations.deliveryStatus || "Delivery Status"}
+          </label>
+          <Select value={filterStatus} onValueChange={setFilterStatus}>
+            <SelectTrigger className="min-w-[140px]">
+              <SelectValue
+                placeholder={translations.selectStatus || "Select status"}
+              />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">
+                {translations.allStatuses || "All Statuses"}
+              </SelectItem>
+              <SelectItem value="scheduled">
+                {translations.scheduled || "Scheduled"}
+              </SelectItem>
+              <SelectItem value="in_transit">
+                {translations.inTransit || "In Transit"}
+              </SelectItem>
+              <SelectItem value="delivered">
+                {translations.delivered || "Delivered"}
+              </SelectItem>
+              <SelectItem value="failed">
+                {translations.failed || "Failed"}
+              </SelectItem>
+              <SelectItem value="not_scheduled">
+                {translations.notScheduled || "Not Scheduled"}
+              </SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div>
+          <label className="block text-sm font-medium mb-1">
+            {translations.paymentMethod || "Payment Method"}
+          </label>
+          <Select value={filterPayment} onValueChange={setFilterPayment}>
+            <SelectTrigger className="min-w-[120px]">
+              <SelectValue placeholder={translations.select || "Select"} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">
+                {translations.allStatuses || "All"}
+              </SelectItem>
+              <SelectItem value="cash">
+                {translations.cash || "Cash"}
+              </SelectItem>
+              <SelectItem value="credit">
+                {translations.credit || "Credit"}
+              </SelectItem>
+              <SelectItem value="online">
+                {translations.online || "Online"}
+              </SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div>
+          <label className="block text-sm font-medium mb-1">
+            {translations.dateRange || "Date Range"}
+          </label>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                className={
+                  "w-[220px] justify-start text-left font-normal" +
+                  (!dateRange.from && !dateRange.to
+                    ? " text-muted-foreground"
+                    : "")
+                }
+              >
+                {dateRange.from && dateRange.to
+                  ? `${format(dateRange.from, "yyyy-MM-dd")} - ${format(
+                      dateRange.to,
+                      "yyyy-MM-dd"
+                    )}`
+                  : dateRange.from
+                  ? `${format(dateRange.from, "yyyy-MM-dd")} - ...`
+                  : translations.selectRange || "Select date range"}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <Calendar
+                mode="range"
+                selected={dateRange}
+                onSelect={(range) =>
+                  setDateRange(range ?? { from: undefined, to: undefined })
+                }
+                numberOfMonths={2}
+                initialFocus
+              />
+            </PopoverContent>
+          </Popover>
+        </div>
+        <Button
+          variant="outline"
+          onClick={() => {
+            setFilterCustomer("");
+            setFilterStatus("");
+            setFilterPayment("");
+            setDateRange({ from: undefined, to: undefined });
+          }}
+        >
+          {translations.clearFilters || "Clear Filters"}
+        </Button>
       </div>
 
-      {/* Sales List */}
+      {/* Sales table */}
       <Card>
         <CardHeader>
           <CardTitle>{translations.salesList || "Sales List"}</CardTitle>
@@ -240,7 +373,6 @@ export default function SalesPage() {
                 <TableHead>{translations.date || "Date"}</TableHead>
                 <TableHead>{translations.customer || "Customer"}</TableHead>
                 <TableHead>{translations.contact || "Contact"}</TableHead>
-                <TableHead>{translations.items || "Items"}</TableHead>
                 <TableHead>{translations.payment || "Payment"}</TableHead>
                 <TableHead>{translations.delivery || "Delivery"}</TableHead>
                 <TableHead className="text-right">
@@ -252,7 +384,7 @@ export default function SalesPage() {
             <TableBody>
               {filteredSales.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={8} className="text-center">
+                  <TableCell colSpan={7} className="text-center">
                     <div className="flex flex-col items-center justify-center py-6 text-muted-foreground">
                       <ShoppingCart className="h-10 w-10 mb-2 opacity-20" />
                       <p>
@@ -284,17 +416,18 @@ export default function SalesPage() {
                       </div>
                     </TableCell>
                     <TableCell>
-                      <Badge>{sale.items?.length} items</Badge>
-                    </TableCell>
-                    <TableCell>
                       <Badge variant="outline">{sale.paymentMethod}</Badge>
                     </TableCell>
                     <TableCell>
                       {sale.delivery ? (
                         <Badge
-                          variant={getDeliveryStatusBadge(sale.delivery.status)}
+                          variant={getDeliveryStatusBadge(
+                            sale.delivery.status as DeliveryFormValues["status"]
+                          )}
                         >
-                          {formatDeliveryStatus(sale.delivery.status)}
+                          {formatDeliveryStatus(
+                            sale.delivery.status as DeliveryFormValues["status"]
+                          )}
                         </Badge>
                       ) : (
                         <Badge variant="outline">
@@ -312,7 +445,7 @@ export default function SalesPage() {
                         className="mr-2"
                         onClick={() => {
                           setSelectedSale(sale);
-                          setShowDialog(true);
+                          setShowDetailsDialog(true);
                         }}
                         title={translations.viewDetails || "View Details"}
                       >
@@ -321,7 +454,38 @@ export default function SalesPage() {
                       <Button
                         variant="outline"
                         size="icon"
-                        onClick={() => handleDeliveryClick(sale)}
+                        onClick={() => {
+                          setSelectedDeliverySale(sale);
+
+                          if (sale.delivery) {
+                            deliveryForm.reset({
+                              status: sale.delivery
+                                .status as DeliveryFormValues["status"],
+                              address: sale.delivery.address || "",
+                              scheduledDate: sale.delivery.scheduledDate || "",
+                              notes: sale.delivery.notes || "",
+                              trackingInfo: sale.delivery.trackingInfo || "",
+                            });
+                          } else {
+                            deliveryForm.reset({
+                              status:
+                                DELIVERY_STATUS.NOT_SCHEDULED as DeliveryFormValues["status"],
+                              address: sale.customerLocationInfo
+                                ? sale.customerLocationInfo.address +
+                                  " " +
+                                  sale.customerLocationInfo.city +
+                                  " " +
+                                  sale.customerLocationInfo.district +
+                                  " " +
+                                  sale.customerLocationInfo.country
+                                : " ",
+                              notes: "",
+                              trackingInfo: "",
+                            });
+                          }
+
+                          setShowDeliveryDialog(true);
+                        }}
                         title={translations.manageDelivery || "Manage Delivery"}
                       >
                         <Truck className="h-4 w-4" />
@@ -335,186 +499,171 @@ export default function SalesPage() {
         </CardContent>
       </Card>
 
-      {/* View Details Dialog */}
-      <Dialog open={showDialog} onOpenChange={setShowDialog}>
-        <DialogContent className="sm:max-w-2xl">
+      {/* Sale Details Dialog */}
+      <Dialog open={showDetailsDialog} onOpenChange={setShowDetailsDialog}>
+        <DialogContent className="sm:max-w-lg">
           <DialogHeader>
             <DialogTitle>
               {translations.saleDetails || "Sale Details"}
             </DialogTitle>
-            <DialogDescription>
-              {selectedSale && (
-                <>
-                  <div className="mb-2">
-                    <span className="font-semibold">
-                      {translations.date || "Date"}:
-                    </span>{" "}
-                    {new Date(selectedSale.date).toLocaleString()}
-                  </div>
-                  <div className="mb-2">
-                    <span className="font-semibold">
-                      {translations.customer || "Customer"}:
-                    </span>{" "}
-                    {selectedSale.customerName} ({selectedSale.customerType})
-                  </div>
-                  <div className="mb-2">
-                    <span className="font-semibold">
-                      {translations.contact || "Contact"}:
-                    </span>{" "}
-                    {selectedSale.customerContactInfo?.primaryPhone}{" "}
-                    {selectedSale.customerContactInfo?.email &&
-                      `| ${selectedSale.customerContactInfo.email}`}
-                  </div>
-                  <div className="mb-2">
-                    <span className="font-semibold">
-                      {translations.paymentMethod || "Payment Method"}:
-                    </span>{" "}
-                    {selectedSale.paymentMethod}
-                  </div>
-                  <div className="mb-2">
-                    <span className="font-semibold">
-                      {translations.delivery || "Delivery"}:
-                    </span>{" "}
-                    {selectedSale.delivery ? (
-                      <Badge
-                        variant={getDeliveryStatusBadge(
-                          selectedSale.delivery.status
-                        )}
-                      >
-                        {formatDeliveryStatus(selectedSale.delivery.status)}
-                      </Badge>
-                    ) : (
-                      <Badge variant="outline">
-                        {translations.notScheduled || "Not Scheduled"}
-                      </Badge>
-                    )}
-                    {selectedSale.delivery?.scheduledDate && (
-                      <span className="ml-2 text-sm">
-                        {new Date(
-                          selectedSale.delivery.scheduledDate
-                        ).toLocaleDateString()}
-                      </span>
-                    )}
-                  </div>
-                  <div className="mb-2">
-                    <span className="font-semibold">
-                      {translations.total || "Total"}:
-                    </span>{" "}
-                    {formatCurrency(selectedSale.totalAmount)}
-                  </div>
-                  <div className="mb-2">
-                    <span className="font-semibold">
-                      {translations.items || "Items"}:
-                    </span>
-                    <Table className="mt-2">
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead>
-                            {translations.product || "Product"}
-                          </TableHead>
-                          <TableHead className="text-right">
-                            {translations.quantity}
-                          </TableHead>
-                          <TableHead className="text-right">
-                            {translations.price}
-                          </TableHead>
-                          <TableHead className="text-right">
-                            {translations.discount}
-                          </TableHead>
-                          <TableHead className="text-right">
-                            {translations.total}
-                          </TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {selectedSale.items.map((item) => (
-                          <TableRow key={item.productId}>
-                            <TableCell>
-                              {getProductName(item.productId)}
-                            </TableCell>
-                            <TableCell className="text-right">
-                              {item.quantity}
-                            </TableCell>
-                            <TableCell className="text-right">
-                              {formatCurrency(item.price)}
-                            </TableCell>
-                            <TableCell className="text-right">
-                              {item.discount}%
-                            </TableCell>
-                            <TableCell className="text-right">
-                              {formatCurrency(item.total)}
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </div>
-
-                  {/* Delivery details section */}
-                  {selectedSale.delivery && (
-                    <div className="mt-4 pt-4 border-t">
-                      <div className="font-semibold mb-2">
-                        {translations.deliveryDetails || "Delivery Details"}
-                      </div>
-
-                      {selectedSale.delivery.address && (
-                        <div className="mb-2">
-                          <span className="font-medium">
-                            {translations.address || "Address"}:
-                          </span>{" "}
-                          {selectedSale.delivery.address}
-                        </div>
-                      )}
-
-                      {selectedSale.delivery.scheduledDate && (
-                        <div className="mb-2">
-                          <span className="font-medium">
-                            {translations.scheduledDate || "Scheduled Date"}:
-                          </span>{" "}
-                          {new Date(
-                            selectedSale.delivery.scheduledDate
-                          ).toLocaleString()}
-                        </div>
-                      )}
-
-                      {selectedSale.delivery.trackingInfo && (
-                        <div className="mb-2">
-                          <span className="font-medium">
-                            {translations.tracking || "Tracking"}:
-                          </span>{" "}
-                          {selectedSale.delivery.trackingInfo}
-                        </div>
-                      )}
-
-                      {selectedSale.delivery.notes && (
-                        <div className="mb-2">
-                          <span className="font-medium">
-                            {translations.notes || "Notes"}:
-                          </span>{" "}
-                          {selectedSale.delivery.notes}
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </>
-              )}
-            </DialogDescription>
           </DialogHeader>
+
+          {selectedSale && (
+            <div className="space-y-4">
+              {/* Customer info */}
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <h3 className="font-medium text-sm">
+                    {translations.customer || "Customer"}
+                  </h3>
+                  <p>{selectedSale.customerName}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {selectedSale.customerType}
+                  </p>
+                </div>
+                <div>
+                  <h3 className="font-medium text-sm">
+                    {translations.contact || "Contact"}
+                  </h3>
+                  <p>{selectedSale.customerContactInfo?.primaryPhone}</p>
+                  {selectedSale.customerContactInfo?.email && (
+                    <p className="text-sm text-muted-foreground">
+                      {selectedSale.customerContactInfo.email}
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              {/* Order info */}
+              <div className="grid grid-cols-3 gap-2">
+                <div>
+                  <h3 className="font-medium text-sm">
+                    {translations.date || "Date"}
+                  </h3>
+                  <p>{new Date(selectedSale.date).toLocaleDateString()}</p>
+                </div>
+                <div>
+                  <h3 className="font-medium text-sm">
+                    {translations.paymentMethod || "Payment"}
+                  </h3>
+                  <p>{selectedSale.paymentMethod}</p>
+                </div>
+                <div>
+                  <h3 className="font-medium text-sm">
+                    {translations.total || "Total"}
+                  </h3>
+                  <p className="font-medium">
+                    {formatCurrency(selectedSale.totalAmount)}
+                  </p>
+                </div>
+              </div>
+
+              {/* Delivery status */}
+              {selectedSale.delivery && (
+                <div>
+                  <h3 className="font-medium text-sm">
+                    {translations.delivery || "Delivery"}
+                  </h3>
+                  <div className="flex items-center gap-2 mt-2">
+                    <Badge
+                      variant={getDeliveryStatusBadge(
+                        selectedSale.delivery
+                          .status as DeliveryFormValues["status"]
+                      )}
+                    >
+                      {formatDeliveryStatus(
+                        selectedSale.delivery
+                          .status as DeliveryFormValues["status"]
+                      )}
+                    </Badge>
+                    {selectedDeliverySale &&
+                      selectedDeliverySale.delivery &&
+                      selectedDeliverySale.delivery.scheduledDate && (
+                        <span className="text-sm text-muted-foreground">
+                          {(() => {
+                            const d = new Date(
+                              String(
+                                selectedDeliverySale.delivery.scheduledDate ??
+                                  ""
+                              )
+                            );
+                            return isNaN(d.getTime())
+                              ? ""
+                              : `${d.toLocaleDateString()} ${d.toLocaleTimeString()}`;
+                          })()}
+                        </span>
+                      )}
+                  </div>
+                  {selectedSale.delivery.address && (
+                    <p className="text-sm mt-1">
+                      {selectedSale.delivery.address}
+                    </p>
+                  )}
+                </div>
+              )}
+
+              {/* Items table */}
+              <div>
+                <h3 className="font-medium text-sm mb-2">
+                  {translations.items || "Items"}
+                </h3>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>{translations.product || "Product"}</TableHead>
+                      <TableHead className="text-right">
+                        {translations.quantity || "Qty"}
+                      </TableHead>
+                      <TableHead className="text-right">
+                        {translations.price || "Price"}
+                      </TableHead>
+                      <TableHead className="text-right">
+                        {translations.total || "Total"}
+                      </TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {selectedSale.items.map(
+                      (item: {
+                        productId: number;
+                        quantity: number;
+                        price: number;
+                        total: number;
+                      }) => (
+                        <TableRow key={item.productId}>
+                          <TableCell>
+                            {getProductName(item.productId)}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            {item.quantity}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            {formatCurrency(item.price)}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            {formatCurrency(item.total)}
+                          </TableCell>
+                        </TableRow>
+                      )
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
+            </div>
+          )}
+
           <DialogFooter>
+            <Button
+              variant="destructive"
+              size="sm"
+              onClick={() => selectedSale && handleDelete(selectedSale.id)}
+            >
+              <Trash2 className="h-4 w-4 mr-2" />
+              {translations.delete || "Delete"}
+            </Button>
             <DialogClose asChild>
               <Button variant="outline">{translations.close || "Close"}</Button>
             </DialogClose>
-            {selectedSale && (
-              <Button
-                variant="destructive"
-                size="sm"
-                onClick={() => handleDelete(selectedSale.id)}
-                className="ml-2"
-              >
-                <Trash2 className="h-4 w-4 mr-2" />
-                {translations.delete || "Delete"}
-              </Button>
-            )}
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -522,152 +671,251 @@ export default function SalesPage() {
       <Dialog open={showDeliveryDialog} onOpenChange={setShowDeliveryDialog}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>
-              {translations.manageDelivery || "Manage Delivery"}
+            <DialogTitle className="">
+              {translations.deliveryDetails || "Delivery Details"}
             </DialogTitle>
-            <DialogDescription>
-              {translations.deliveryDetails ||
-                "Enter delivery details for this order"}
-            </DialogDescription>
           </DialogHeader>
-          <Form {...deliveryFormRHF}>
-            <form
-              onSubmit={deliveryFormRHF.handleSubmit((data) => {
-                if (!selectedSale) return;
-                const updatedSales = sales.map((sale) =>
-                  sale.id === selectedSale.id
-                    ? { ...sale, delivery: { ...data } }
-                    : sale
-                );
-                setSales(updatedSales);
-                setShowDeliveryDialog(false);
-                setSelectedSale(null);
-              })}
-              className="grid gap-4 py-4"
-            >
-              <FormField
-                control={deliveryFormRHF.control}
-                name="status"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>
-                      {translations.deliveryStatus || "Delivery Status"}
-                    </FormLabel>
-                    <Select value={field.value} onValueChange={field.onChange}>
-                      <SelectTrigger>
-                        <SelectValue
+
+          {selectedDeliverySale &&
+            (selectedDeliverySale.delivery &&
+            selectedDeliverySale.delivery.status !==
+              DELIVERY_STATUS.NOT_SCHEDULED ? (
+              <div className="space-y-6 p-2  bg-background  ">
+                <div className="flex flex-wrap items-center gap-3">
+                  <h3 className="text-sm font-semibold mb-1">
+                    {translations.deliveryStatus || "Delivery Status"} :
+                  </h3>
+                  <Badge
+                    variant={getDeliveryStatusBadge(
+                      selectedDeliverySale.delivery
+                        .status as DeliveryFormValues["status"]
+                    )}
+                  >
+                    {formatDeliveryStatus(
+                      selectedDeliverySale.delivery
+                        .status as DeliveryFormValues["status"]
+                    )}
+                  </Badge>
+                </div>
+                <h3 className="text-sm font-semibold mb-1">
+                  {translations.scheduledDate || "Scheduled Date"} :
+                </h3>
+                {selectedDeliverySale &&
+                  selectedDeliverySale.delivery &&
+                  selectedDeliverySale.delivery.scheduledDate && (
+                    <span className="text-sm text-muted-foreground">
+                      {(() => {
+                        const d = new Date(
+                          String(
+                            selectedDeliverySale.delivery.scheduledDate ?? ""
+                          )
+                        );
+                        return isNaN(d.getTime())
+                          ? ""
+                          : `${d.toLocaleDateString()} ${d.toLocaleTimeString()}`;
+                      })()}
+                    </span>
+                  )}
+
+                {selectedDeliverySale.delivery.address && (
+                  <div>
+                    <h3 className="text-sm font-semibold mb-1">
+                      {translations.address || "Address"}
+                    </h3>
+                    <p className="text-sm">
+                      {selectedDeliverySale.delivery.address}
+                    </p>
+                  </div>
+                )}
+
+                {selectedDeliverySale.delivery.trackingInfo && (
+                  <div>
+                    <h3 className="text-sm font-semibold mb-1">
+                      {translations.trackingNumber || "Tracking #"}
+                    </h3>
+                    <p className="text-sm">
+                      {selectedDeliverySale.delivery.trackingInfo}
+                    </p>
+                  </div>
+                )}
+
+                {selectedDeliverySale.delivery.notes && (
+                  <div>
+                    <h3 className="text-sm font-semibold mb-1">
+                      {translations.notes || "Notes"}
+                    </h3>
+                    <p className="text-sm">
+                      {selectedDeliverySale.delivery.notes}
+                    </p>
+                  </div>
+                )}
+
+                <div className="flex justify-end">
+                  <Button
+                    className="mt-4"
+                    onClick={() => {
+                      deliveryForm.reset({
+                        status: selectedDeliverySale.delivery
+                          ?.status as DeliveryFormValues["status"],
+                        address: selectedDeliverySale.delivery?.address || "",
+                        scheduledDate:
+                          selectedDeliverySale.delivery?.scheduledDate || "",
+                        notes: selectedDeliverySale.delivery?.notes || "",
+                        trackingInfo:
+                          selectedDeliverySale.delivery?.trackingInfo || "",
+                      });
+                      setSelectedDeliverySale({
+                        ...selectedDeliverySale,
+                        delivery: undefined,
+                      });
+                    }}
+                  >
+                    {translations.editDelivery || "Edit Delivery Info"}
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <Form {...deliveryForm}>
+                <form
+                  onSubmit={deliveryForm.handleSubmit(handleDeliverySubmit)}
+                  className="space-y-4"
+                >
+                  <FormField
+                    control={deliveryForm.control}
+                    name="status"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>
+                          {translations.deliveryStatus || "Delivery Status"}
+                        </FormLabel>
+                        <Select
+                          value={field.value}
+                          onValueChange={field.onChange}
+                        >
+                          <SelectTrigger>
+                            <SelectValue
+                              placeholder={
+                                translations.selectStatus || "Select status"
+                              }
+                            />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="scheduled">
+                              {translations.scheduled || "Scheduled"}
+                            </SelectItem>
+                            <SelectItem value="in_transit">
+                              {translations.inTransit || "In Transit"}
+                            </SelectItem>
+                            <SelectItem value="delivered">
+                              {translations.delivered || "Delivered"}
+                            </SelectItem>
+                            <SelectItem value="failed">
+                              {translations.failed || "Failed"}
+                            </SelectItem>
+                            <SelectItem value="not_scheduled">
+                              {translations.notScheduled || "Not Scheduled"}
+                            </SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={deliveryForm.control}
+                    name="address"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>
+                          {translations.deliveryAddress || "Delivery Address"}
+                        </FormLabel>
+                        <Textarea
+                          {...field}
                           placeholder={
-                            translations.selectStatus || "Select status"
+                            translations.enterAddress ||
+                            "Enter delivery address"
+                          }
+                          rows={2}
+                        />
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={deliveryForm.control}
+                    name="scheduledDate"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>
+                          {translations.scheduledDate || "Scheduled Date"}
+                        </FormLabel>
+                        <DatePicker
+                          selected={field.value ? new Date(field.value) : null}
+                          onChange={(date) =>
+                            field.onChange(date ? date.toISOString() : "")
+                          }
+                          showTimeSelect
+                          dateFormat="Pp"
+                          className="w-full rounded border px-2 py-1 bg-background"
+                          placeholderText="Select date and time"
+                        />
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={deliveryForm.control}
+                    name="trackingInfo"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>
+                          {translations.trackingNumber || "Tracking #"}
+                        </FormLabel>
+                        <Input
+                          {...field}
+                          placeholder={
+                            translations.trackingNumber || "Tracking number"
                           }
                         />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="not_scheduled">
-                          {translations.notScheduled || "Not Scheduled"}
-                        </SelectItem>
-                        <SelectItem value="scheduled">
-                          {translations.scheduled || "Scheduled"}
-                        </SelectItem>
-                        <SelectItem value="in_transit">
-                          {translations.inTransit || "In Transit"}
-                        </SelectItem>
-                        <SelectItem value="delivered">
-                          {translations.delivered || "Delivered"}
-                        </SelectItem>
-                        <SelectItem value="failed">
-                          {translations.failed || "Failed"}
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={deliveryFormRHF.control}
-                name="address"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>
-                      {translations.deliveryAddress || "Delivery Address"}
-                    </FormLabel>
-                    <Textarea
-                      {...field}
-                      placeholder={
-                        translations.enterAddress ||
-                        "Enter full delivery address"
-                      }
-                    />
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={deliveryFormRHF.control}
-                name="scheduledDate"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>
-                      {translations.scheduledDate || "Scheduled Date"}
-                    </FormLabel>
-                    <Input
-                      type="datetime-local"
-                      {...field}
-                      value={field.value || ""}
-                      onChange={field.onChange}
-                    />
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={deliveryFormRHF.control}
-                name="trackingInfo"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>
-                      {translations.trackingInfo || "Tracking Information"}
-                    </FormLabel>
-                    <Input
-                      {...field}
-                      placeholder={
-                        translations.trackingNumber ||
-                        "Tracking number or delivery reference"
-                      }
-                    />
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={deliveryFormRHF.control}
-                name="notes"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{translations.notes || "Notes"}</FormLabel>
-                    <Textarea
-                      {...field}
-                      placeholder={
-                        translations.deliveryNotes ||
-                        "Special instructions or delivery notes"
-                      }
-                    />
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <DialogFooter>
-                <DialogClose asChild>
-                  <Button variant="outline">
-                    {translations.cancel || "Cancel"}
-                  </Button>
-                </DialogClose>
-                <Button type="submit">
-                  {translations.saveDelivery || "Save Delivery Info"}
-                </Button>
-              </DialogFooter>
-            </form>
-          </Form>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={deliveryForm.control}
+                    name="notes"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{translations.notes || "Notes"}</FormLabel>
+                        <Textarea
+                          {...field}
+                          placeholder={
+                            translations.deliveryNotes || "Special instructions"
+                          }
+                          rows={2}
+                        />
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <DialogFooter>
+                    <DialogClose asChild>
+                      <Button variant="outline">
+                        {translations.cancel || "Cancel"}
+                      </Button>
+                    </DialogClose>
+                    <Button type="submit">
+                      {translations.saveDelivery || "Save"}
+                    </Button>
+                  </DialogFooter>
+                </form>
+              </Form>
+            ))}
         </DialogContent>
       </Dialog>
     </div>

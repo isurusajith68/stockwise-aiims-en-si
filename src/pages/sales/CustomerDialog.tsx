@@ -43,6 +43,8 @@ import {
   FormControl,
   FormMessage,
 } from "@/components/ui/form";
+import { useState } from "react";
+import { sriLankaDistricts, sriLankaCities } from "./sri-lanka-location";
 
 interface CustomerDialogProps {
   open: boolean;
@@ -96,6 +98,26 @@ export function CustomerDialog({
       address: "",
     },
   });
+
+  const [countries] = useState<string[]>(["Sri Lanka", "India"]);
+
+  const [district, setDistrict] = useState<string>("");
+  const [city, setCity] = useState<string>("");
+
+  const handleCountryChange = (country: string) => {
+    form.setValue("country", country);
+    setDistrict("");
+    setCity("");
+  };
+  const handleDistrictChange = (district: string) => {
+    setDistrict(district);
+    setCity("");
+    form.setValue("district", district);
+  };
+  const handleCityChange = (city: string) => {
+    setCity(city);
+    form.setValue("city", city);
+  };
 
   const handleCustomerSubmit = (data: CustomerFormSchema) => {
     const newCustomer: Customer = {
@@ -271,40 +293,124 @@ export function CustomerDialog({
                             <FormItem>
                               <FormLabel>{translations.country}</FormLabel>
                               <FormControl>
-                                <Input {...field} placeholder="United States" />
+                                <Select
+                                  value={field.value}
+                                  onValueChange={handleCountryChange}
+                                >
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Select country" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {countries.map((country) => (
+                                      <SelectItem key={country} value={country}>
+                                        {country}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
                               </FormControl>
                               <FormMessage />
                             </FormItem>
                           )}
                         />
 
-                        <FormField
-                          control={form.control}
-                          name="district"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>{translations.district}</FormLabel>
-                              <FormControl>
-                                <Input {...field} placeholder="California" />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
+                        {form.watch("country") === "Sri Lanka" && (
+                          <FormField
+                            control={form.control}
+                            name="district"
+                            render={() => (
+                              <FormItem>
+                                <FormLabel>{translations.district}</FormLabel>
+                                <FormControl>
+                                  <Select
+                                    value={district}
+                                    onValueChange={handleDistrictChange}
+                                  >
+                                    <SelectTrigger>
+                                      <SelectValue placeholder="Select district" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      {sriLankaDistricts.map((d) => (
+                                        <SelectItem key={d} value={d}>
+                                          {d}
+                                        </SelectItem>
+                                      ))}
+                                    </SelectContent>
+                                  </Select>
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        )}
+                        {form.watch("country") === "Sri Lanka" &&
+                          district &&
+                          sriLankaCities[district] && (
+                            <FormField
+                              control={form.control}
+                              name="city"
+                              render={() => (
+                                <FormItem>
+                                  <FormLabel>{translations.city}</FormLabel>
+                                  <FormControl>
+                                    <Select
+                                      value={city}
+                                      onValueChange={handleCityChange}
+                                    >
+                                      <SelectTrigger>
+                                        <SelectValue placeholder="Select city" />
+                                      </SelectTrigger>
+                                      <SelectContent>
+                                        {sriLankaCities[district].map((c) => (
+                                          <SelectItem key={c} value={c}>
+                                            {c}
+                                          </SelectItem>
+                                        ))}
+                                      </SelectContent>
+                                    </Select>
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
                           )}
-                        />
 
-                        <FormField
-                          control={form.control}
-                          name="city"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>{translations.city}</FormLabel>
-                              <FormControl>
-                                <Input {...field} placeholder="San Francisco" />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
+                        {form.watch("country") === "India" && (
+                          <>
+                            <FormField
+                              control={form.control}
+                              name="district"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>{translations.district}</FormLabel>
+                                  <FormControl>
+                                    <Input
+                                      {...field}
+                                      placeholder="Enter district"
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <FormField
+                              control={form.control}
+                              name="city"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>{translations.city}</FormLabel>
+                                  <FormControl>
+                                    <Input
+                                      {...field}
+                                      placeholder="Enter city"
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                          </>
+                        )}
 
                         <FormField
                           control={form.control}
