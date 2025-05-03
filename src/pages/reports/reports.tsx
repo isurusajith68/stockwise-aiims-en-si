@@ -1,34 +1,34 @@
 import { useContext, useState } from "react";
-import {
-  BarChart3,
-  ArrowUpRight,
-  ArrowDownRight,
-  Package,
+import { 
+  BarChart3, 
+  ArrowUpRight, 
+  ArrowDownRight, 
+  Package, 
   Download,
   Calendar,
   TrendingUp,
   RefreshCw,
   Search,
 } from "lucide-react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
+import { 
+  Card, 
+  CardContent, 
+  CardDescription, 
+  CardFooter, 
+  CardHeader, 
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
+import { 
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
+import { 
   AreaChart,
   Area,
   BarChart,
@@ -95,7 +95,7 @@ export function Reports() {
   );
   const [sales] = useLocalStorage<any[]>("sales", []);
   const [products] = useLocalStorage<any[]>("inventory", []);
-
+  
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center">
@@ -122,38 +122,38 @@ export function Reports() {
           </Button>
         </div>
       </div>
-
+      
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <ReportStatCard
-          title={translations.totalSales}
-          value="LKR 175,340"
-          trend="+12.5%"
+        <ReportStatCard 
+          title={translations.totalSales} 
+          value="LKR 175,340" 
+          trend="+12.5%" 
           trend_direction="up"
           description={`${translations.vs} ${translations.previousMonth}`}
         />
-        <ReportStatCard
-          title={translations.averageOrderValue}
-          value="LKR 2,450"
-          trend="+5.2%"
+        <ReportStatCard 
+          title={translations.averageOrderValue} 
+          value="LKR 2,450" 
+          trend="+5.2%" 
           trend_direction="up"
           description={`${translations.vs} ${translations.previousMonth}`}
         />
-        <ReportStatCard
-          title={translations.stockTurnover}
-          value="3.2x"
-          trend="-0.4x"
+        <ReportStatCard 
+          title={translations.stockTurnover} 
+          value="3.2x" 
+          trend="-0.4x" 
           trend_direction="down"
           description={`${translations.vs} ${translations.previousMonth}`}
         />
-        <ReportStatCard
-          title={translations.profitMargin}
-          value="18.5%"
-          trend="+2.3%"
+        <ReportStatCard 
+          title={translations.profitMargin} 
+          value="18.5%" 
+          trend="+2.3%" 
           trend_direction="up"
           description={`${translations.vs} ${translations.previousMonth}`}
         />
       </div>
-
+      
       <Tabs defaultValue="overview" className="space-y-4">
         <TabsList>
           <TabsTrigger value="overview">{translations.overview}</TabsTrigger>
@@ -161,7 +161,7 @@ export function Reports() {
           <TabsTrigger value="inventory">{translations.inventory}</TabsTrigger>
           <TabsTrigger value="forecasts">{translations.forecasts}</TabsTrigger>
         </TabsList>
-
+        
         <TabsContent value="overview" className="space-y-4">
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             <Card className="col-span-2">
@@ -186,8 +186,8 @@ export function Reports() {
                     />
                     <XAxis dataKey="name" />
                     <YAxis />
-                    <Tooltip
-                      contentStyle={{
+                    <Tooltip 
+                      contentStyle={{ 
                         backgroundColor: "var(--background)",
                         borderColor: "var(--border)",
                         borderRadius: "8px",
@@ -198,11 +198,11 @@ export function Reports() {
                         translations.sales,
                       ]}
                     />
-                    <Area
-                      type="monotone"
-                      dataKey="value"
-                      stroke="hsl(var(--primary))"
-                      fill="hsl(var(--primary)/0.2)"
+                    <Area 
+                      type="monotone" 
+                      dataKey="value" 
+                      stroke="hsl(var(--primary))" 
+                      fill="hsl(var(--primary)/0.2)" 
                     />
                   </AreaChart>
                 </ResponsiveContainer>
@@ -220,7 +220,7 @@ export function Reports() {
                 </Button>
               </CardFooter>
             </Card>
-
+            
             <Card>
               <CardHeader>
                 <CardTitle>{translations.salesByCategory}</CardTitle>
@@ -250,8 +250,8 @@ export function Reports() {
                         />
                       ))}
                     </Pie>
-                    <Tooltip
-                      contentStyle={{
+                    <Tooltip 
+                      contentStyle={{ 
                         backgroundColor: "var(--background)",
                         borderColor: "var(--border)",
                         borderRadius: "8px",
@@ -270,7 +270,7 @@ export function Reports() {
               </CardFooter>
             </Card>
           </div>
-
+          
           <Card>
             <CardHeader>
               <CardTitle>{translations.stockMovement}</CardTitle>
@@ -295,8 +295,8 @@ export function Reports() {
                   />
                   <XAxis dataKey="date" />
                   <YAxis />
-                  <Tooltip
-                    contentStyle={{
+                  <Tooltip 
+                    contentStyle={{ 
                       backgroundColor: "var(--background)",
                       borderColor: "var(--border)",
                       borderRadius: "8px",
@@ -327,7 +327,7 @@ export function Reports() {
             </CardFooter>
           </Card>
         </TabsContent>
-
+        
         <TabsContent value="sales">
           <div className="flex gap-2 mb-4">
             <Button
@@ -371,7 +371,7 @@ export function Reports() {
             translations={translations}
           />
         </TabsContent>
-
+        
         <TabsContent value="inventory">
           <Card>
             <CardHeader>
@@ -387,7 +387,7 @@ export function Reports() {
             </CardContent>
           </Card>
         </TabsContent>
-
+        
         <TabsContent value="forecasts">
           <Card>
             <CardHeader>

@@ -16,6 +16,7 @@ import { LanguageContext } from "@/lib/language-context";
 import SalesPage from "@/pages/sales/sales";
 import ExpensesPage from "@/pages/expenses/expenses";
 import AIInsights from "./pages/AIInsights/AIInsights";
+import AddSalePage from "@/pages/sales/add-sale";
 
 function App() {
   const [loading, setLoading] = useState(true);
@@ -56,6 +57,7 @@ function App() {
               <Route path="/reports" element={<Reports />} />
               <Route path="/settings" element={<Settings />} />
               <Route path="/sales" element={<SalesPage />} />
+              <Route path="/sales/add" element={<AddSalePage />} />
               <Route path="/expenses" element={<ExpensesPage />} />
               <Route
                 path="/ai-insights"
