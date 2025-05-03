@@ -38,6 +38,13 @@ export type Sale = {
   totalAmount: number;
   customerContactInfo: ContactInfo;
   customerLocationInfo: LocationInfo;
+  delivery?: {
+    status: string;
+    address: string;
+    scheduledDate?: string;
+    notes?: string;
+    trackingInfo?: string;
+  };
 };
 
 export interface CustomerFormValues {
