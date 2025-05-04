@@ -2,7 +2,6 @@ export type Language = "en" | "si";
 
 export const translations = {
   en: {
-    // General
     dashboard: "Dashboard",
     products: "Products",
     suppliers: "Suppliers",
@@ -353,6 +352,15 @@ export const translations = {
     failed: "Failed",
     deliveryStatus: "Delivery Status",
     selectStatus: "Select Status",
+    customers: "Customers",
+    addCustomer: "Add Customer",
+    editCustomer: "Edit Customer",
+    viewCustomer: "View Customer",
+    deleteCustomer: "Delete Customer",
+    confirmDelete: "Are you sure you want to delete this customer?",
+    actions: "Actions",
+    searchCustomers: "Search customers...",
+    noCustomersFound: "No customers found.",
   },
 
   si: {
@@ -709,5 +717,14 @@ export const translations = {
     failed: "අසාර්ථකයි",
     deliveryAddress: "බෙදාහැරීමේ ලිපිනය",
     deliveryStatus: "බෙදාහැරීමේ තත්ත්වය",
+    customers: "පාරිභෝගිකයන්",
+    addCustomer: "පාරිභෝගිකයා එක් කරන්න",
+    editCustomer: "පාරිභෝගිකයා සංස්කරණය කරන්න",
+    viewCustomer: "පාරිභෝගිකයා බලන්න",
+    deleteCustomer: "පාරිභෝගිකයා ඉවත් කරන්න",
+    confirmDelete: "මෙම පාරිභෝගිකයා ඉවත් කිරීමට ඔබට විශ්වාසද?",
+    actions: "ක්‍රියාමාර්ග",
+    searchCustomers: "පාරිභෝගිකයන් සොයන්න...",
+    noCustomersFound: "පාරිභෝගිකයන් නොමැත.",
   },
 };

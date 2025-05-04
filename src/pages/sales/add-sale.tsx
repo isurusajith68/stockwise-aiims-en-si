@@ -34,7 +34,6 @@ export default function AddSalePage() {
     []
   );
 
-  // Dialog states
   const [showCustomerDialog, setShowCustomerDialog] = useState(true);
   const [showSaleDialog, setShowSaleDialog] = useState(false);
   const [currentCustomer, setCurrentCustomer] = useState<Customer | null>(null);
@@ -133,6 +132,7 @@ export default function AddSalePage() {
         setSearchTerm={setSearchTerm}
         filteredCustomers={filteredCustomers}
         translations={translations}
+        from="sale"
       />
 
       <SaleDialog

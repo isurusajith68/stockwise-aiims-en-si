@@ -17,6 +17,7 @@ import SalesPage from "@/pages/sales/sales";
 import ExpensesPage from "@/pages/expenses/expenses";
 import AIInsights from "./pages/AIInsights/AIInsights";
 import AddSalePage from "@/pages/sales/add-sale";
+import CustomerManagementPage from "@/pages/coustomer/page";
 
 function App() {
   const [loading, setLoading] = useState(true);
@@ -71,6 +72,7 @@ function App() {
                   />
                 }
               />
+              <Route path="/customers" element={<CustomerManagementPage />} />
             </Routes>
           </Layout>
         </BrowserRouter>

@@ -13,6 +13,7 @@ import {
   X,
   ShoppingCart,
   DollarSign,
+  Users,
 } from "lucide-react";
 import { LanguageContext } from "@/lib/language-context";
 import { Button } from "@/components/ui/button";
@@ -74,6 +75,12 @@ export function Layout({ children }: LayoutProps) {
       label: translations.expenses,
       icon: DollarSign,
       path: "/expenses",
+    },
+    {
+      id: "customers",
+      label: translations.customers || "Customers",
+      icon: Users,
+      path: "/customers",
     },
     {
       id: "reports",
@@ -237,7 +244,6 @@ export function Layout({ children }: LayoutProps) {
         </div>
       </div>
 
-      {/* Main content */}
       <main className="flex-1 overflow-y-auto">
         <div className="container mx-auto py-6 px-4 md:px-6">{children}</div>
       </main>

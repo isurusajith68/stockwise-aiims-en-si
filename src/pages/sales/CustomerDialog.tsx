@@ -43,7 +43,7 @@ import {
   FormControl,
   FormMessage,
 } from "@/components/ui/form";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { sriLankaDistricts, sriLankaCities } from "./sri-lanka-location";
 
 interface CustomerDialogProps {
@@ -57,6 +57,7 @@ interface CustomerDialogProps {
   searchTerm: string;
   setSearchTerm: (term: string) => void;
   translations: Record<string, string>;
+  from: string;
 }
 
 const customerSchema = z.object({
@@ -83,6 +84,8 @@ export function CustomerDialog({
   searchTerm,
   setSearchTerm,
   translations,
+  from,
+  currentCustomer,
 }: CustomerDialogProps) {
   const form = useForm<CustomerFormSchema>({
     resolver: zodResolver(customerSchema),
@@ -120,33 +123,61 @@ export function CustomerDialog({
   };
 
   const handleCustomerSubmit = (data: CustomerFormSchema) => {
-    const newCustomer: Customer = {
-      id: Date.now().toString(),
-      name: data.customerName,
-      type: data.customerType,
-      contactInfo: {
-        primaryPhone: data.primaryPhone || "",
-        secondaryPhone: data.secondaryPhone || "",
-        email: data.email || "",
-      },
-      locationInfo: {
-        country: data.country || "",
-        district: data.district || "",
-        city: data.city || "",
-        address: data.address || "",
-      },
-    };
-    const existingCustomer =
-      customers &&
-      customers.find(
-        (c) => c.contactInfo && c.contactInfo.primaryPhone === data.primaryPhone
+    if (currentCustomer) {
+      const updatedCustomer: Customer = {
+        ...currentCustomer,
+        name: data.customerName,
+        type: data.customerType,
+        contactInfo: {
+          primaryPhone: data.primaryPhone || "",
+          secondaryPhone: data.secondaryPhone || "",
+          email: data.email || "",
+        },
+        locationInfo: {
+          country: data.country || "",
+          district: data.district || "",
+          city: data.city || "",
+          address: data.address || "",
+        },
+      };
+      setCustomers(
+        customers?.map((c) =>
+          c.id === currentCustomer.id ? updatedCustomer : c
+        ) || []
       );
-    if (!existingCustomer) {
-      setCustomers([...(customers || []), newCustomer]);
+      setCurrentCustomer(updatedCustomer);
+      onOpenChange(false);
+      setShowSaleDialog(true);
+    } else {
+      const newCustomer: Customer = {
+        id: Date.now().toString(),
+        name: data.customerName,
+        type: data.customerType,
+        contactInfo: {
+          primaryPhone: data.primaryPhone || "",
+          secondaryPhone: data.secondaryPhone || "",
+          email: data.email || "",
+        },
+        locationInfo: {
+          country: data.country || "",
+          district: data.district || "",
+          city: data.city || "",
+          address: data.address || "",
+        },
+      };
+      const existingCustomer =
+        customers &&
+        customers.find(
+          (c) =>
+            c.contactInfo && c.contactInfo.primaryPhone === data.primaryPhone
+        );
+      if (!existingCustomer) {
+        setCustomers([...(customers || []), newCustomer]);
+      }
+      setCurrentCustomer(newCustomer);
+      onOpenChange(false);
+      setShowSaleDialog(true);
     }
-    setCurrentCustomer(newCustomer);
-    onOpenChange(false);
-    setShowSaleDialog(true);
   };
 
   const selectCustomer = (customer: Customer) => {
@@ -155,20 +186,51 @@ export function CustomerDialog({
     setShowSaleDialog(true);
   };
 
+  useEffect(() => {
+    if (currentCustomer) {
+      form.reset({
+        customerName: currentCustomer?.name || "",
+        customerType: currentCustomer?.type || "regular",
+        primaryPhone: currentCustomer?.contactInfo?.primaryPhone || "",
+        secondaryPhone: currentCustomer?.contactInfo?.secondaryPhone || "",
+        email: currentCustomer?.contactInfo?.email || "",
+        country: currentCustomer?.locationInfo?.country || "",
+        district: currentCustomer?.locationInfo?.district || "",
+        city: currentCustomer?.locationInfo?.city || "",
+        address: currentCustomer?.locationInfo?.address || "",
+      });
+    }
+  }, [currentCustomer]);
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog
+      open={open}
+      onOpenChange={(open) => {
+        if (!open) {
+          setCurrentCustomer(null);
+          setSearchTerm("");
+        }
+        onOpenChange(open);
+      }}
+    >
       <DialogContent className="max-w-3xl">
         <DialogHeader>
           <DialogTitle>{translations.customerDetails}</DialogTitle>
         </DialogHeader>
 
         <Tabs defaultValue="new" className="w-full">
-          <TabsList className="grid grid-cols-2">
-            <TabsTrigger value="new">{translations.newCustomer}</TabsTrigger>
-            <TabsTrigger value="existing">
-              {translations.existingCustomer}
-            </TabsTrigger>
-          </TabsList>
+          {from !== "customer" && (
+            <TabsList
+              className={
+                from === "customer" ? "grid grid-cols-1" : "grid grid-cols-2"
+              }
+            >
+              <TabsTrigger value="new">{translations.newCustomer}</TabsTrigger>
+              <TabsTrigger value="existing">
+                {translations.existingCustomer}
+              </TabsTrigger>
+            </TabsList>
+          )}
 
           <TabsContent value="new" className="space-y-4 mt-4">
             <Form {...form}>
