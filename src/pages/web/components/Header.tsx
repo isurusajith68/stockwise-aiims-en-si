@@ -1,154 +1,134 @@
-import React, { useState, useEffect } from "react";
-import { motion } from "framer-motion";
-import { Menu, X, Database } from "lucide-react";
-import Button from "./ui/Button";
+"use client";
+import { useTheme } from "@/components/theme-provider";
+import {
+  Navbar,
+  NavBody,
+  NavItems,
+  MobileNav,
+  NavbarLogo,
+  NavbarButton,
+  MobileNavHeader,
+  MobileNavToggle,
+  MobileNavMenu,
+} from "@/components/ui/resizable-navbar";
+import { Moon, Sun } from "lucide-react";
 
-interface HeaderProps {
-  onLoginClick: () => void;
-  onDemoClick: () => void;
-}
+import { useState } from "react";
+import { Link } from "react-router-dom";
 
-const Header: React.FC<HeaderProps> = ({ onLoginClick, onDemoClick }) => {
-  const [isScrolled, setIsScrolled] = useState(false);
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+export function NavbarDemo() {
+  const navItems = [
+    {
+      name: "Features",
+      link: "#features",
+    },
+    {
+      name: "Pricing",
+      link: "#pricing",
+    },
+    {
+      name: "Contact",
+      link: "#contact",
+    },
+  ];
 
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 10);
-    };
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { theme, setTheme } = useTheme();
 
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  console.log(theme);
+  // Function to handle smooth scrolling
+  const handleSmoothScroll = (e) => {
+    const href = e.currentTarget.getAttribute("href");
+    if (href && href.startsWith("#")) {
+      e.preventDefault();
 
-  const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
+      const targetId = href.substring(1);
+      const targetElement = document.getElementById(targetId);
+
+      if (targetElement) {
+        targetElement.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
+
+        // Update URL without page reload
+        window.history.pushState(null, "", href);
+      }
+    }
+  };
 
   return (
-    <header
-      className={`fixed top-0 w-full z-50 transition-all duration-300 ${
-        isScrolled ? "bg-white/95 backdrop-blur-md shadow-sm" : "bg-transparent"
-      }`}
-    >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center py-4 md:py-6">
-          <div className="flex items-center">
-            <Database className="h-8 w-8 text-primary-600" />
-            <span className="ml-2 text-xl font-semibold text-primary-950">
-              StockWise AIIMS
-            </span>
-          </div>
-
-          {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center space-x-8">
-            <a
-              href="#features"
-              className="text-primary-900 hover:text-primary-600 transition-colors"
-            >
-              Features
-            </a>
-            <a
-              href="#benefits"
-              className="text-primary-900 hover:text-primary-600 transition-colors"
-            >
-              Benefits
-            </a>
-            <a
-              href="#showcase"
-              className="text-primary-900 hover:text-primary-600 transition-colors"
-            >
-              Showcase
-            </a>
-            <a
-              href="#testimonials"
-              className="text-primary-900 hover:text-primary-600 transition-colors"
-            >
-              Testimonials
-            </a>
-            <Button variant="outline" size="sm" onClick={onLoginClick}>
-              Login
-            </Button>
-            <Button variant="primary" size="sm" onClick={onDemoClick}>
-              Request Demo
-            </Button>
-          </nav>
-
-          {/* Mobile Menu Button */}
-          <button
-            className="md:hidden text-primary-900 focus:outline-none"
-            onClick={toggleMenu}
-            aria-label="Toggle menu"
+    <Navbar>
+      <NavBody>
+        <NavbarLogo />
+        <NavItems
+          items={navItems.map((item) => ({
+            ...item,
+            onClick: handleSmoothScroll,
+          }))}
+        />
+        <div className="flex items-center gap-4">
+          <NavbarButton variant="secondary">
+            <Link to="/login">Login</Link>
+          </NavbarButton>
+          <NavbarButton variant="primary" href="#join">
+            Join
+          </NavbarButton>
+          <NavbarButton
+            variant="secondary"
+            onClick={() => {
+              setTheme(theme === "dark" ? "light" : "dark");
+            }}
           >
-            {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
-          </button>
+            {theme === "dark" ? <Sun size={16} /> : <Moon size={16} />}
+          </NavbarButton>
         </div>
-      </div>
+      </NavBody>
 
-      {/* Mobile Navigation */}
-      {isMenuOpen && (
-        <motion.div
-          initial={{ opacity: 0, height: 0 }}
-          animate={{ opacity: 1, height: "auto" }}
-          exit={{ opacity: 0, height: 0 }}
-          transition={{ duration: 0.3 }}
-          className="md:hidden bg-white border-t border-gray-100"
+      <MobileNav>
+        <MobileNavHeader>
+          <NavbarLogo />
+          <MobileNavToggle
+            isOpen={isMobileMenuOpen}
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          />
+        </MobileNavHeader>
+
+        <MobileNavMenu
+          isOpen={isMobileMenuOpen}
+          onClose={() => setIsMobileMenuOpen(false)}
         >
-          <div className="px-4 py-2 space-y-1">
+          {navItems.map((item, idx) => (
             <a
-              href="#features"
-              className="block py-3 text-primary-900 hover:text-primary-600 transition-colors"
-              onClick={() => setIsMenuOpen(false)}
+              key={`mobile-link-${idx}`}
+              href={item.link}
+              onClick={(e) => {
+                handleSmoothScroll(e);
+                setIsMobileMenuOpen(false);
+              }}
+              className="relative text-neutral-600 dark:text-neutral-300"
             >
-              Features
+              <span className="block">{item.name}</span>
             </a>
-            <a
-              href="#benefits"
-              className="block py-3 text-primary-900 hover:text-primary-600 transition-colors"
-              onClick={() => setIsMenuOpen(false)}
+          ))}
+          <div className="flex w-full flex-col gap-4">
+            <NavbarButton
+              onClick={() => setIsMobileMenuOpen(false)}
+              variant="primary"
+              className="w-full"
             >
-              Benefits
-            </a>
-            <a
-              href="#showcase"
-              className="block py-3 text-primary-900 hover:text-primary-600 transition-colors"
-              onClick={() => setIsMenuOpen(false)}
+              Login
+            </NavbarButton>
+            <NavbarButton
+              onClick={() => setIsMobileMenuOpen(false)}
+              variant="primary"
+              className="w-full"
             >
-              Showcase
-            </a>
-            <a
-              href="#testimonials"
-              className="block py-3 text-primary-900 hover:text-primary-600 transition-colors"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Testimonials
-            </a>
-            <div className="py-3">
-              <Button
-                variant="outline"
-                fullWidth
-                onClick={() => {
-                  setIsMenuOpen(false);
-                  onLoginClick();
-                }}
-                className="mb-2"
-              >
-                Login
-              </Button>
-              <Button
-                variant="primary"
-                fullWidth
-                onClick={() => {
-                  setIsMenuOpen(false);
-                  onDemoClick();
-                }}
-              >
-                Request Demo
-              </Button>
-            </div>
+              Join
+            </NavbarButton>
           </div>
-        </motion.div>
-      )}
-    </header>
+        </MobileNavMenu>
+      </MobileNav>
+    </Navbar>
   );
-};
-
-export default Header;
+}

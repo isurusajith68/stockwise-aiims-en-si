@@ -14,6 +14,7 @@ import {
   ShoppingCart,
   DollarSign,
   Users,
+  LogOut,
 } from "lucide-react";
 import { LanguageContext } from "@/lib/language-context";
 import { Button } from "@/components/ui/button";
@@ -22,11 +23,7 @@ import { LanguageSwitcher } from "@/components/language-switcher";
 import { ThemeSwitcher } from "@/components/theme-switcher";
 import { cn } from "@/lib/utils";
 
-interface LayoutProps {
-  children: React.ReactNode;
-}
-
-export function Layout({ children }: LayoutProps) {
+export function Layout() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const { translations } = useContext(LanguageContext);
@@ -177,11 +174,22 @@ export function Layout({ children }: LayoutProps) {
           </ul>
         </nav>
 
-        <div className="p-4 mt-auto">
+        <div className="p-4 mt-auto flex flex-col gap-2">
           <div className="flex justify-center">
             {!sidebarCollapsed && <LanguageSwitcher />}
             <ThemeSwitcher className="ml-2" />
           </div>
+          <Button
+            variant="outline"
+            className="w-full flex items-center justify-center gap-2 mt-2"
+            onClick={() => {
+              // Add your logout logic here (e.g., clear tokens, redirect)
+              window.location.href = "/login";
+            }}
+          >
+            <LogOut className="w-4 h-4" />
+            <span>Logout</span>
+          </Button>
         </div>
       </div>
 
@@ -236,11 +244,22 @@ export function Layout({ children }: LayoutProps) {
           </ul>
         </nav>
 
-        <div className="p-4 mt-auto">
+        <div className="p-4 mt-auto flex flex-col gap-2">
           <div className="flex justify-center">
             <LanguageSwitcher />
             <ThemeSwitcher className="ml-2" />
           </div>
+          <Button
+            variant="outline"
+            className="w-full flex items-center justify-center gap-2 mt-2"
+            onClick={() => {
+              // Add your logout logic here (e.g., clear tokens, redirect)
+              window.location.href = "/login";
+            }}
+          >
+            <LogOut className="w-4 h-4" />
+            <span>Logout</span>
+          </Button>
         </div>
       </div>
 

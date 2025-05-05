@@ -10,9 +10,9 @@ const CallToAction = () => {
   });
 
   return (
-    <section id="cta" className="py-20">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-gradient-to-r from-primary-600 to-primary-800 rounded-2xl shadow-xl overflow-hidden">
+    <section id="cta" className="py-20 bg-gradient-to-b from-gray-900 to-black">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 ">
+        <div className="rounded-2xl shadow-xl overflow-hidden">
           <div className="relative px-6 py-16 sm:px-12 sm:py-20 lg:py-24 lg:px-16">
             <div className="relative z-10 max-w-2xl mx-auto text-center">
               <motion.div
@@ -32,16 +32,15 @@ const CallToAction = () => {
 
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
                   <Button
-                    variant="primary"
+                    variant="secondary"
                     size="lg"
-                    className="bg-white text-primary-700 hover:bg-gray-100"
+                    className="bg-white text-black"
                   >
                     Request a Demo
                   </Button>
                   <Button
-                    variant="outline"
                     size="lg"
-                    className="border-white text-white hover:bg-white/10"
+                    className="border-white text-white"
                   >
                     Contact Sales
                   </Button>

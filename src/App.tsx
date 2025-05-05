@@ -1,5 +1,4 @@
-import { useEffect, useState } from "react";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/toaster";
 import { Dashboard } from "@/pages/dashboard/dashboard";
@@ -9,7 +8,6 @@ import { Orders } from "@/pages/orders/orders";
 import { Reports } from "@/pages/reports/reports";
 import { Settings } from "@/pages/settings/settings";
 import { Layout } from "@/components/layout/layout";
-import { LoadingScreen } from "@/components/ui/loading-screen";
 import { useLocalStorage } from "@/hooks/use-local-storage";
 import { Language, translations } from "@/lib/translations";
 import { LanguageContext } from "@/lib/language-context";
@@ -19,29 +17,29 @@ import AIInsights from "./pages/AIInsights/AIInsights";
 import AddSalePage from "@/pages/sales/add-sale";
 import CustomerManagementPage from "@/pages/coustomer/page";
 import Web from "./pages/web/page";
+import AuthPages from "./pages/auth/Login";
 
 function App() {
-  const [loading, setLoading] = useState(true);
   const [language, setLanguage] = useLocalStorage<Language>(
     "stockwise-language",
     "en"
   );
 
-  useEffect(() => {
-    // Simulate loading time for demonstration purposes
-    const timer = setTimeout(() => {
-      setLoading(false);
-    }, 1500);
-    return () => clearTimeout(timer);
-  }, []);
+  // useEffect(() => {
+  //   // Simulate loading time for demonstration purposes
+  //   const timer = setTimeout(() => {
+  //     setLoading(false);
+  //   }, 1500);
+  //   return () => clearTimeout(timer);
+  // }, []);
 
   const toggleLanguage = () => {
     setLanguage(language === "en" ? "si" : "en");
   };
 
-  if (loading) {
-    return <LoadingScreen />;
-  }
+  // if (loading) {
+  //   return <LoadingScreen />;
+  // }
 
   return (
     <LanguageContext.Provider
@@ -51,6 +49,7 @@ function App() {
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Web />} />
+            <Route path="/login" element={<AuthPages />} />
             <Route element={<Layout />}>
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/products" element={<Products />} />

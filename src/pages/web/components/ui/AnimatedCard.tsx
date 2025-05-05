@@ -20,7 +20,7 @@ const AnimatedCard: React.FC<AnimatedCardProps> = ({ children, delay = 0, classN
       initial={{ opacity: 0, y: 20 }}
       animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
       transition={{ duration: 0.5, delay: delay * 0.1 }}
-      className={`bg-white rounded-2xl shadow-md overflow-hidden ${className}`}
+      className={`bg-black rounded-2xl shadow-md overflow-hidden ${className}`}
     >
       {children}
     </motion.div>

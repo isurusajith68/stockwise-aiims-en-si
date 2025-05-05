@@ -1,6 +1,5 @@
 import React from "react";
-import { motion } from "framer-motion";
-import { useInView } from "react-intersection-observer";
+
 import SectionTitle from "../components/ui/SectionTitle";
 import AnimatedCard from "../components/ui/AnimatedCard";
 
@@ -33,7 +32,7 @@ const Testimonial: React.FC<TestimonialProps> = ({
             <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z" />
           </svg>
         </div>
-        <p className="text-gray-600 mb-6 flex-grow">{quote}</p>
+        <p className="text-white mb-6 flex-grow">{quote}</p>
         <div className="flex items-center">
           <img
             src={image}
@@ -84,7 +83,10 @@ const Testimonials = () => {
   ];
 
   return (
-    <section id="testimonials" className="py-20 bg-gray-50">
+    <section
+      id="testimonials"
+      className="py-20 bg-gradient-to-b from-black to-gray-900"
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <SectionTitle
           title="Trusted by Businesses Worldwide"
@@ -104,24 +106,6 @@ const Testimonials = () => {
               delay={index}
             />
           ))}
-        </div>
-
-        <div className="mt-16 text-center">
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Join over 500+ companies that have transformed their inventory
-            management with StockWise AIIMS.
-          </p>
-
-          <div className="mt-10 grid grid-cols-2 md:grid-cols-4 gap-8">
-            {[1, 2, 3, 4].map((i) => (
-              <div
-                key={i}
-                className="flex items-center justify-center grayscale opacity-60 hover:grayscale-0 hover:opacity-100 transition-all duration-300"
-              >
-                <div className="h-8 bg-gray-400 w-32 rounded"></div>
-              </div>
-            ))}
-          </div>
         </div>
       </div>
     </section>

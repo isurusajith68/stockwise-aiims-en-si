@@ -21,7 +21,7 @@ const StatCard: React.FC<StatCardProps> = ({ value, label, delay }) => {
       initial={{ opacity: 0, scale: 0.9 }}
       animate={inView ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.9 }}
       transition={{ duration: 0.4, delay: delay * 0.1 }}
-      className="bg-white p-6 rounded-xl shadow-md text-center"
+      className=" p-6 rounded-xl shadow-md text-center"
     >
       <div className="text-3xl md:text-4xl font-bold text-primary-600 mb-2">
         {value}
@@ -160,7 +160,7 @@ const Benefits = () => {
 
             <div className="bg-primary-800 p-8 md:p-0">
               <img
-                src="https://images.pexels.com/photos/7947304/pexels-photo-7947304.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2"
+                src="https://images.pexels.com/photos/3184465/pexels-photo-3184465.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2"
                 alt="Inventory management visualization"
                 className="w-full h-full object-cover"
               />
