@@ -1,0 +1,131 @@
+import React from "react";
+import { motion } from "framer-motion";
+import { useInView } from "react-intersection-observer";
+import SectionTitle from "../components/ui/SectionTitle";
+import AnimatedCard from "../components/ui/AnimatedCard";
+
+interface TestimonialProps {
+  quote: string;
+  author: string;
+  role: string;
+  company: string;
+  image: string;
+  delay: number;
+}
+
+const Testimonial: React.FC<TestimonialProps> = ({
+  quote,
+  author,
+  role,
+  company,
+  image,
+  delay,
+}) => {
+  return (
+    <AnimatedCard delay={delay} className="p-6">
+      <div className="flex flex-col h-full">
+        <div className="mb-6">
+          <svg
+            className="h-8 w-8 text-primary-300"
+            fill="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z" />
+          </svg>
+        </div>
+        <p className="text-gray-600 mb-6 flex-grow">{quote}</p>
+        <div className="flex items-center">
+          <img
+            src={image}
+            alt={author}
+            className="w-12 h-12 rounded-full object-cover mr-4"
+          />
+          <div>
+            <div className="font-medium text-primary-900">{author}</div>
+            <div className="text-sm text-gray-500">
+              {role}, {company}
+            </div>
+          </div>
+        </div>
+      </div>
+    </AnimatedCard>
+  );
+};
+
+const Testimonials = () => {
+  const testimonials = [
+    {
+      quote:
+        "StockWise AIIMS transformed our warehouse operations. The AI recommendations have helped us reduce stockouts by over 30% and improved our inventory turnover significantly.",
+      author: "Sarah Johnson",
+      role: "Operations Manager",
+      company: "Global Retail Inc.",
+      image:
+        "https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=600",
+    },
+    {
+      quote:
+        "The multilingual support has been a game-changer for our international team. We can now collaborate seamlessly across locations, and the real-time tracking keeps everyone on the same page.",
+      author: "David Chen",
+      role: "Supply Chain Director",
+      company: "Pacific Trade Co.",
+      image:
+        "https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=600",
+    },
+    {
+      quote:
+        "As a small business owner, I was skeptical about implementing an AI system, but StockWise AIIMS was surprisingly intuitive. The analytics have given us insights we never had before.",
+      author: "Aisha Patel",
+      role: "Owner",
+      company: "Modern Boutique",
+      image:
+        "https://images.pexels.com/photos/415829/pexels-photo-415829.jpeg?auto=compress&cs=tinysrgb&w=600",
+    },
+  ];
+
+  return (
+    <section id="testimonials" className="py-20 bg-gray-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <SectionTitle
+          title="Trusted by Businesses Worldwide"
+          subtitle="Hear what our customers have to say about StockWise AIIMS"
+          centered
+        />
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-12">
+          {testimonials.map((testimonial, index) => (
+            <Testimonial
+              key={index}
+              quote={testimonial.quote}
+              author={testimonial.author}
+              role={testimonial.role}
+              company={testimonial.company}
+              image={testimonial.image}
+              delay={index}
+            />
+          ))}
+        </div>
+
+        <div className="mt-16 text-center">
+          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+            Join over 500+ companies that have transformed their inventory
+            management with StockWise AIIMS.
+          </p>
+
+          <div className="mt-10 grid grid-cols-2 md:grid-cols-4 gap-8">
+            {[1, 2, 3, 4].map((i) => (
+              <div
+                key={i}
+                className="flex items-center justify-center grayscale opacity-60 hover:grayscale-0 hover:opacity-100 transition-all duration-300"
+              >
+                <div className="h-8 bg-gray-400 w-32 rounded"></div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+};
+
+export default Testimonials;

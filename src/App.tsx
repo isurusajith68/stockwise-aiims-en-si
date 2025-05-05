@@ -18,6 +18,7 @@ import ExpensesPage from "@/pages/expenses/expenses";
 import AIInsights from "./pages/AIInsights/AIInsights";
 import AddSalePage from "@/pages/sales/add-sale";
 import CustomerManagementPage from "@/pages/coustomer/page";
+import Web from "./pages/web/page";
 
 function App() {
   const [loading, setLoading] = useState(true);
@@ -48,9 +49,9 @@ function App() {
     >
       <ThemeProvider defaultTheme="light" storageKey="stockwise-theme">
         <BrowserRouter>
-          <Layout>
-            <Routes>
-              <Route path="/" element={<Navigate to="/dashboard" replace />} />
+          <Routes>
+            <Route path="/" element={<Web />} />
+            <Route element={<Layout />}>
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/products" element={<Products />} />
               <Route path="/suppliers" element={<Suppliers />} />
@@ -73,8 +74,8 @@ function App() {
                 }
               />
               <Route path="/customers" element={<CustomerManagementPage />} />
-            </Routes>
-          </Layout>
+            </Route>
+          </Routes>
         </BrowserRouter>
         <Toaster />
       </ThemeProvider>

@@ -1,5 +1,5 @@
 import { useState, useContext } from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, Outlet } from "react-router-dom";
 import {
   BarChart3,
   FileBarChart2,
@@ -245,7 +245,10 @@ export function Layout({ children }: LayoutProps) {
       </div>
 
       <main className="flex-1 overflow-y-auto">
-        <div className="container mx-auto py-6 px-4 md:px-6">{children}</div>
+        <div className="container mx-auto py-6 px-4 md:px-6">
+          {" "}
+          <Outlet />
+        </div>
       </main>
     </div>
   );
