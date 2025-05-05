@@ -50,7 +50,7 @@ function App() {
           <Routes>
             <Route path="/" element={<Web />} />
             <Route path="/login" element={<AuthPages />} />
-            {/* <Route element={<Layout />}>
+            <Route element={<Layout />}>
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/products" element={<Products />} />
               <Route path="/suppliers" element={<Suppliers />} />
@@ -73,7 +73,7 @@ function App() {
                 }
               />
               <Route path="/customers" element={<CustomerManagementPage />} />
-            </Route> */}
+            </Route>
           </Routes>
         </BrowserRouter>
         <Toaster />

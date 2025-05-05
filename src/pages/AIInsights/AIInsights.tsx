@@ -124,11 +124,7 @@ const AIInsights: React.FC<Partial<AIInsightsProps>> = ({
   theme = "light",
 }) => {
   return (
-    <div
-      className={`space-y-6 ${
-        theme === "dark" ? "bg-slate-900 text-white" : "bg-white"
-      }`}
-    >
+    <div>
       <h1 className="text-2xl font-bold">{t(language, "aiInsights.title")}</h1>
 
       <AIAssistant

@@ -35,9 +35,9 @@ const CallToAction = () => {
 
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
                   <Button
-                    variant="secondary"
+                    variant=""
                     size="lg"
-                    className="bg-white text-blue-700 dark:bg-white hover:bg-gray-100 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
+                    className=" text-blue-700 dark:text-blue-700 dark:bg-white bg-gray-100 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
                   >
                     Request a Demo
                   </Button>

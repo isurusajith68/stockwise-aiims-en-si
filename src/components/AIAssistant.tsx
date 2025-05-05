@@ -183,11 +183,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({
   };
 
   return (
-    <Card
-      className={`shadow-md ${
-        theme === "dark" ? "bg-slate-800 text-white" : "bg-white"
-      }`}
-    >
+    <Card className="mt-3">
       <CardHeader>
         <CardTitle>{t(language, "aiAssistant.title")}</CardTitle>
         <CardDescription>
@@ -252,7 +248,5 @@ const AIAssistant: React.FC<AIAssistantProps> = ({
     </Card>
   );
 };
-
-
 
 export default AIAssistant;

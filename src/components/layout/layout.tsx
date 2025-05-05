@@ -179,17 +179,31 @@ export function Layout() {
             {!sidebarCollapsed && <LanguageSwitcher />}
             <ThemeSwitcher className="ml-2" />
           </div>
-          <Button
-            variant="outline"
-            className="w-full flex items-center justify-center gap-2 mt-2"
-            onClick={() => {
-              // Add your logout logic here (e.g., clear tokens, redirect)
-              window.location.href = "/login";
-            }}
-          >
-            <LogOut className="w-4 h-4" />
-            <span>Logout</span>
-          </Button>
+          {sidebarCollapsed ? (
+            <Button
+              variant="outline"
+              size="icon"
+              className="w-full p-2 flex items-center justify-center gap-2 mt-2 bg-red-600 text-white hover:bg-red-700 hover:text-white"
+              onClick={() => {
+                window.location.href = "/";
+              }}
+            >
+              <LogOut className="w-10 h-10" />
+            </Button>
+          ) : null}
+
+          {!sidebarCollapsed && (
+            <Button
+              variant="outline"
+              className="w-full flex items-center justify-center gap-2 mt-2 bg-red-600 text-white hover:bg-red-700 hover:text-white"
+              onClick={() => {
+                window.location.href = "/";
+              }}
+            >
+              <LogOut className="w-4 h-4" />
+              <span>Logout</span>
+            </Button>
+          )}
         </div>
       </div>
 
@@ -251,10 +265,9 @@ export function Layout() {
           </div>
           <Button
             variant="outline"
-            className="w-full flex items-center justify-center gap-2 mt-2"
+            className="w-full flex items-center justify-center gap-2 mt-2 bg-red-600 text-white hover:bg-red-700 hover:text-white"
             onClick={() => {
-              // Add your logout logic here (e.g., clear tokens, redirect)
-              window.location.href = "/login";
+              window.location.href = "/";
             }}
           >
             <LogOut className="w-4 h-4" />

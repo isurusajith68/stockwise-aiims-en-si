@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 :root {
-  --background: 210 20% 98%;            /* Soft sky background (almost white with blue tint) */
+  --background: 210 20% 94%;            /* Soft sky background (almost white with blue tint) */
   --foreground: 220 15% 15%;            /* Dark blue-gray for text */
 
   --card: 0 0% 100%;
