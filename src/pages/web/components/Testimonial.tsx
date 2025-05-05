@@ -1,5 +1,6 @@
-import React from "react";
+"use client";
 
+import type React from "react";
 import SectionTitle from "../components/ui/SectionTitle";
 import AnimatedCard from "../components/ui/AnimatedCard";
 
@@ -21,27 +22,34 @@ const Testimonial: React.FC<TestimonialProps> = ({
   delay,
 }) => {
   return (
-    <AnimatedCard delay={delay} className="p-6">
+    <AnimatedCard
+      delay={delay}
+      className="p-6 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-md hover:shadow-lg transition-shadow"
+    >
       <div className="flex flex-col h-full">
         <div className="mb-6">
           <svg
-            className="h-8 w-8 text-primary-300"
+            className="h-8 w-8 text-blue-400 dark:text-blue-500"
             fill="currentColor"
             viewBox="0 0 24 24"
           >
             <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z" />
           </svg>
         </div>
-        <p className="text-white mb-6 flex-grow">{quote}</p>
+        <p className="text-gray-700 dark:text-gray-300 mb-6 flex-grow">
+          {quote}
+        </p>
         <div className="flex items-center">
           <img
-            src={image}
+            src={image || "/placeholder.svg"}
             alt={author}
             className="w-12 h-12 rounded-full object-cover mr-4"
           />
           <div>
-            <div className="font-medium text-primary-900">{author}</div>
-            <div className="text-sm text-gray-500">
+            <div className="font-medium text-blue-600 dark:text-blue-400">
+              {author}
+            </div>
+            <div className="text-sm text-gray-600 dark:text-gray-400">
               {role}, {company}
             </div>
           </div>
@@ -85,13 +93,15 @@ const Testimonials = () => {
   return (
     <section
       id="testimonials"
-      className="py-20 bg-gradient-to-b from-black to-gray-900"
+      className="py-20 bg-gradient-to-b from-gray-50 to-white dark:from-black dark:to-gray-900"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <SectionTitle
           title="Trusted by Businesses Worldwide"
           subtitle="Hear what our customers have to say about StockWise AIIMS"
           centered
+          className="text-gray-900 dark:text-white"
+          subtitleClassName="text-gray-700 dark:text-gray-400"
         />
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-12">

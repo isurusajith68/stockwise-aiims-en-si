@@ -1,4 +1,4 @@
-import React from "react";
+"use client";
 import { motion } from "framer-motion";
 import { useInView } from "react-intersection-observer";
 import Button from "../components/ui/Button";
@@ -10,10 +10,13 @@ const CallToAction = () => {
   });
 
   return (
-    <section id="cta" className="py-20 bg-gradient-to-b from-gray-900 to-black">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 ">
+    <section
+      id="cta"
+      className="py-20 bg-gradient-to-b from-gray-100 to-white dark:from-gray-900 dark:to-black"
+    >
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="rounded-2xl shadow-xl overflow-hidden">
-          <div className="relative px-6 py-16 sm:px-12 sm:py-20 lg:py-24 lg:px-16">
+          <div className="relative px-6 py-16 sm:px-12 sm:py-20 lg:py-24 lg:px-16 bg-blue-600 dark:bg-blue-900">
             <div className="relative z-10 max-w-2xl mx-auto text-center">
               <motion.div
                 ref={ref}
@@ -34,13 +37,13 @@ const CallToAction = () => {
                   <Button
                     variant="secondary"
                     size="lg"
-                    className="bg-white text-black"
+                    className="bg-white text-blue-700 dark:bg-white hover:bg-gray-100 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
                   >
                     Request a Demo
                   </Button>
                   <Button
                     size="lg"
-                    className="border-white text-white"
+                    className="border-2 border-white text-white hover:bg-white/10 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
                   >
                     Contact Sales
                   </Button>
@@ -65,7 +68,7 @@ const CallToAction = () => {
                       y="0"
                       width="4"
                       height="4"
-                      fill="rgba(255, 255, 255, 0.1)"
+                      fill="rgba(255, 255, 255, 0.15)"
                     />
                   </pattern>
                 </defs>
@@ -87,7 +90,7 @@ const CallToAction = () => {
                       cx="10"
                       cy="10"
                       r="3"
-                      fill="rgba(255, 255, 255, 0.1)"
+                      fill="rgba(255, 255, 255, 0.15)"
                     />
                   </pattern>
                 </defs>

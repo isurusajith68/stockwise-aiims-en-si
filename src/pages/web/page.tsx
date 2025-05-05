@@ -8,14 +8,17 @@ import ProductShowcase from "./components/ProductShowcase";
 import Testimonials from "./components/Testimonial";
 import Footer from "./components/Footer";
 import { NavbarDemo } from "./components/Header";
+import MagneticScrollButton from "./components/ui/MagneticScrollButton";
+import ChatBot from "./components/ChatBot";
 
 const Web = () => {
   // Add smooth scrolling effect
   useEffect(() => {
     // Function to handle smooth scrolling when clicking on navigation links
-    const handleSmoothScroll = (e: any) => {
-      // Only apply to anchor links
-      const href = e.currentTarget.getAttribute("href");
+    const handleSmoothScroll = (e: Event) => {
+      const target = e.currentTarget as HTMLAnchorElement;
+      const href = target.getAttribute("href");
+
       if (href && href.startsWith("#")) {
         e.preventDefault();
 
@@ -23,10 +26,9 @@ const Web = () => {
         const targetElement = document.getElementById(targetId);
 
         if (targetElement) {
-          // Smooth scroll to the element
           targetElement.scrollIntoView({
             behavior: "smooth",
-            block: "start",
+            block: "start", // Scroll to the top of the section
           });
 
           // Update URL without page reload
@@ -35,8 +37,10 @@ const Web = () => {
       }
     };
 
-    // Add event listeners to all anchor links in the navbar
+    // Select all anchor links that link to sections within the page
     const navLinks = document.querySelectorAll('a[href^="#"]');
+
+    // Attach event listeners for smooth scrolling
     navLinks.forEach((link) => {
       link.addEventListener("click", handleSmoothScroll);
     });
@@ -50,9 +54,9 @@ const Web = () => {
   }, []);
 
   return (
-    <div className="bg-lime-50 text-gray-900 dark:bg-black dark:text-white">
+    <div className="bg-gradient-to-b from-gray-200 to-white dark:from-gray-900  dark:to-black">
       <NavbarDemo />
-      <div className="">
+      <main>
         <div id="home">
           <Hero />
         </div>
@@ -66,7 +70,9 @@ const Web = () => {
           <CallToAction />
         </div>
         <Footer />
-      </div>
+      </main>
+      <MagneticScrollButton />
+      <ChatBot />
     </div>
   );
 };

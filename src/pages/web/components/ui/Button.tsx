@@ -31,12 +31,15 @@ const Button: React.FC<ButtonProps> = ({
     lg: "text-lg px-6 py-3",
   };
 
-  // Variant classes (default light theme)
+  // Variant classes (including light/dark mode)
   const variantClasses = {
-    primary: "bg-primary-600 hover:bg-primary-700 text-white",
-    secondary: "bg-gray-100 hover:bg-gray-200 text-gray-900",
-    outline: "border border-gray-300 hover:bg-gray-100 text-gray-700",
-    text: "hover:bg-gray-100 text-gray-700",
+    primary:
+      "bg-primary-600 hover:bg-primary-700 text-white dark:bg-primary-500 dark:hover:bg-primary-600 dark:text-white",
+    secondary:
+      "bg-gray-100 hover:bg-gray-200 text-gray-900 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-white",
+    outline:
+      "border border-gray-300 hover:bg-gray-100 text-gray-700 dark:border-gray-700 dark:hover:bg-gray-800 dark:text-gray-300",
+    text: "hover:bg-gray-100 text-gray-700 dark:text-gray-300 dark:hover:bg-gray-800",
   };
 
   // Combine all classes

@@ -1,4 +1,4 @@
-import React from "react";
+"use client";
 import { motion } from "framer-motion";
 import { useInView } from "react-intersection-observer";
 import SectionTitle from "./ui/SectionTitle";
@@ -33,15 +33,15 @@ const ProductShowcase = () => {
   return (
     <section
       id="product"
-      className="py-24 bg-gradient-to-b from-gray-900 to-black text-white overflow-hidden"
+      className="py-24 bg-gradient-to-b from-gray-100 to-white dark:from-gray-900 dark:to-black text-gray-900 dark:text-white overflow-hidden"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <SectionTitle
           title="Experience StockWise AIIMS"
           subtitle="See how our intelligent system transforms your inventory management"
           centered
-          className="text-white"
-          subtitleClassName="text-gray-400"
+          className="text-gray-900 dark:text-white"
+          subtitleClassName="text-gray-700 dark:text-gray-400"
         />
 
         <motion.div
@@ -58,14 +58,14 @@ const ProductShowcase = () => {
               className="lg:w-1/2 mb-12 lg:mb-0 lg:pr-12"
             >
               <div className="mb-6">
-                <span className="bg-primary-900/50 text-primary-400 px-3 py-1 rounded-full text-sm font-medium">
+                <span className="bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-400 px-3 py-1 rounded-full text-sm font-medium">
                   Dashboard
                 </span>
               </div>
-              <h3 className="text-2xl md:text-3xl font-bold mb-4 text-white">
+              <h3 className="text-2xl md:text-3xl font-bold mb-4 text-gray-900 dark:text-white">
                 Powerful Analytics Dashboard
               </h3>
-              <p className="text-gray-400 mb-6 text-lg">
+              <p className="text-gray-700 dark:text-gray-400 mb-6 text-lg">
                 Get a complete overview of your inventory with real-time updates
                 and AI-powered insights. Our intuitive dashboard presents
                 complex data in an accessible format, helping you make informed
@@ -73,26 +73,26 @@ const ProductShowcase = () => {
               </p>
               <ul className="space-y-4 mb-8">
                 <li className="flex items-start">
-                  <div className="bg-primary-900/30 rounded-full p-1 mr-3">
-                    <Check className="h-5 w-5 text-primary-400" />
+                  <div className="bg-blue-100 dark:bg-blue-900/30 rounded-full p-1 mr-3">
+                    <Check className="h-5 w-5 text-blue-600 dark:text-blue-400" />
                   </div>
-                  <span className="text-gray-300">
+                  <span className="text-gray-700 dark:text-gray-300">
                     Visual inventory status with color-coded alerts
                   </span>
                 </li>
                 <li className="flex items-start">
-                  <div className="bg-primary-900/30 rounded-full p-1 mr-3">
-                    <Check className="h-5 w-5 text-primary-400" />
+                  <div className="bg-blue-100 dark:bg-blue-900/30 rounded-full p-1 mr-3">
+                    <Check className="h-5 w-5 text-blue-600 dark:text-blue-400" />
                   </div>
-                  <span className="text-gray-300">
+                  <span className="text-gray-700 dark:text-gray-300">
                     Trend analysis with AI-powered forecasting
                   </span>
                 </li>
                 <li className="flex items-start">
-                  <div className="bg-primary-900/30 rounded-full p-1 mr-3">
-                    <Check className="h-5 w-5 text-primary-400" />
+                  <div className="bg-blue-100 dark:bg-blue-900/30 rounded-full p-1 mr-3">
+                    <Check className="h-5 w-5 text-blue-600 dark:text-blue-400" />
                   </div>
-                  <span className="text-gray-300">
+                  <span className="text-gray-700 dark:text-gray-300">
                     Customizable views for different roles and needs
                   </span>
                 </li>
@@ -100,36 +100,36 @@ const ProductShowcase = () => {
               <Button
                 variant="primary"
                 href="#cta"
-                className="bg-primary-600 hover:bg-primary-700 text-white font-medium"
+                className="bg-blue-600 hover:bg-blue-700 text-white font-medium"
               >
                 See it in action
               </Button>
             </motion.div>
 
             <motion.div variants={itemVariants} className="lg:w-1/2">
-              <div className="relative rounded-xl overflow-hidden shadow-2xl border border-gray-800 group">
-                <div className="absolute -inset-0.5 bg-gradient-to-r from-primary-600 to-accent-600 rounded-xl opacity-30 blur-sm group-hover:opacity-50 transition duration-300"></div>
-                <div className="relative bg-gray-900 p-3 rounded-xl overflow-hidden">
+              <div className="relative rounded-xl overflow-hidden shadow-2xl border border-gray-200 dark:border-gray-800 group">
+                <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-600 to-blue-400 rounded-xl opacity-30 blur-sm group-hover:opacity-50 transition duration-300"></div>
+                <div className="relative bg-white dark:bg-gray-900 p-3 rounded-xl overflow-hidden">
                   <img
                     src="https://images.pexels.com/photos/3184465/pexels-photo-3184465.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2"
                     alt="StockWise AIIMS Dashboard"
                     className="w-full h-auto rounded-lg"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-primary-900/60 to-transparent rounded-lg"></div>
+                  <div className="absolute inset-0 bg-gradient-to-t from-blue-600/30 dark:from-blue-900/60 to-transparent rounded-lg"></div>
 
                   <div className="absolute bottom-4 left-4 right-4">
-                    <div className="bg-gray-900/80 p-4 rounded-lg backdrop-blur-sm border border-gray-800">
+                    <div className="bg-white/90 dark:bg-gray-900/80 p-4 rounded-lg backdrop-blur-sm border border-gray-200 dark:border-gray-800">
                       <div className="flex items-center justify-between mb-2">
-                        <span className="text-sm font-medium text-gray-300">
+                        <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
                           Inventory Status
                         </span>
-                        <span className="text-primary-400 text-sm font-medium">
+                        <span className="text-blue-600 dark:text-blue-400 text-sm font-medium">
                           97.4% Optimized
                         </span>
                       </div>
-                      <div className="h-2 bg-gray-700 rounded-full overflow-hidden">
+                      <div className="h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
                         <div
-                          className="h-full bg-gradient-to-r from-primary-500 to-accent-500 rounded-full"
+                          className="h-full bg-gradient-to-r from-blue-500 to-blue-600 dark:from-blue-500 dark:to-blue-400 rounded-full"
                           style={{ width: "97%" }}
                         ></div>
                       </div>

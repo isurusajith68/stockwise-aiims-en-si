@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 import { motion } from "framer-motion";
 import { useInView } from "react-intersection-observer";
@@ -28,13 +30,15 @@ const FeatureCard: React.FC<FeatureCardProps> = ({
       initial={{ opacity: 0, y: 20 }}
       animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
       transition={{ duration: 0.5, delay: delay * 0.1 }}
-      className="bg-gray-900 p-6 rounded-2xl shadow-md hover:shadow-lg transition-shadow border border-gray-800"
+      className="bg-white dark:bg-gray-900 p-6 rounded-2xl shadow-md hover:shadow-lg transition-shadow border border-gray-200 dark:border-gray-800"
     >
-      <div className="bg-primary-900/30 p-3 rounded-xl w-12 h-12 flex items-center justify-center mb-4">
-        <div className="text-primary-400">{icon}</div>
+      <div className="bg-blue-100 dark:bg-blue-900/30 p-3 rounded-xl w-12 h-12 flex items-center justify-center mb-4">
+        <div className="text-blue-600 dark:text-blue-400">{icon}</div>
       </div>
-      <h3 className="text-xl font-semibold text-white mb-2">{title}</h3>
-      <p className="text-gray-400">{description}</p>
+      <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+        {title}
+      </h3>
+      <p className="text-gray-700 dark:text-gray-400">{description}</p>
     </motion.div>
   );
 };
@@ -80,17 +84,20 @@ const Features = () => {
   ];
 
   return (
-    <section id="features" className="py-20 bg-gradient-to-b from-black to-gray-900">
+    <section
+      id="features"
+      className="py-20 bg-gradient-to-b from-white to-gray-100 dark:from-black dark:to-gray-900"
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <SectionTitle
           title="Intelligent Features"
           subtitle="Designed to transform your inventory management experience"
           centered
-          className="text-white"
-          subtitleClassName="text-gray-400"
+          className="text-gray-900 dark:text-white"
+          subtitleClassName="text-gray-700 dark:text-gray-400"
         />
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-12">
           {features.map((feature, index) => (
             <FeatureCard
               key={index}
