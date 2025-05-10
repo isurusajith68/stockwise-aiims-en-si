@@ -214,7 +214,8 @@ export const translations = {
     freeAccount: "Free Account",
     securityDescription: "Manage your security settings",
     securityContent: "Security settings content will be available soon",
-
+    twoFactorAuth: "Two-Factor Authentication",
+    twoFactorEnabled: "Two-Factor Authentication Enabled",
     // Theme
     light: "Light",
     dark: "Dark",
@@ -602,7 +603,11 @@ export const translations = {
     freeAccount: "නොමිලේ ගිණුම",
     securityDescription: "ඔබගේ ආරක්ෂක සැකසුම් කළමනාකරණය",
     securityContent: "ආරක්ෂක සැකසුම් අන්තර්ගතය ඉක්මනින් ලබාගත හැකි වනු ඇත",
-
+    twoFactorAuth: "ද්වි-සාධක සත්‍යාපනය",
+    twoFactorEnabled: "ද්වි-සාධක සත්‍යාපනය සක්‍රිය කර ඇත",
+    twoFactorDisabled: "ද්වි-සාධක සත්‍යාපනය අක්‍රිය කර ඇත",
+    enableTwoFactor: "ද්වි-සාධක සත්‍යාපනය සක්‍රිය කරන්න",
+    disableTwoFactor: "ද්වි-සාධක සත්‍යාපනය අක්‍රිය කරන්න",
     // Theme
     light: "ආලෝකමත්",
     dark: "අඳුරු",

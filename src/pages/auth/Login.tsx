@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Label } from "@/components/ui/label";
-import { Eye, EyeOff, Box } from "lucide-react";
+import { Eye, EyeOff, Box, Key } from "lucide-react";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { LanguageContext } from "@/lib/language-context";
 import { useForm } from "react-hook-form";
@@ -68,21 +68,32 @@ export default function AuthPages() {
 
 function LoginForm() {
   const { translations: t } = useContext(LanguageContext);
-  const [identifier, setIdentifier] = useState(""); // Identifier for email or username
+  const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [requires2FA, setRequires2FA] = useState(false);
+  const [tokenData, setTokenData] = useState(null);
   const navigate = useNavigate();
   const loginMutation = useLogin();
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
     setIsLoading(true);
 
     try {
-      await loginMutation.mutateAsync({ identifier, password }); // Use identifier instead of email
-      toast.success("Login successful!");
-      // navigate(0); // Refresh the page after successful login
+      const response = await loginMutation.mutateAsync({
+        identifier,
+        password,
+      });
+
+      if (response.require2FA) {
+        setRequires2FA(true);
+        setTokenData(response.tokenData);
+      } else {
+        toast.success("Login successful!");
+        navigate("/dashboard");
+      }
     } catch (error) {
       console.error("Login failed:", error);
       toast.error("Login failed. Please check your credentials and try again.");
@@ -90,6 +101,28 @@ function LoginForm() {
       setIsLoading(false);
     }
   };
+
+  const handle2FASuccess = () => {
+    // After successful 2FA verification
+    navigate("/dashboard");
+  };
+
+  const handle2FACancel = () => {
+    // User cancels 2FA verification
+    setRequires2FA(false);
+    setTokenData(null);
+  };
+
+  if (requires2FA) {
+    return (
+      <TwoFactorVerification
+        onSuccess={handle2FASuccess}
+        onCancel={handle2FACancel}
+        identifier={identifier}
+        password={password}
+      />
+    );
+  }
 
   return (
     <>
@@ -149,6 +182,98 @@ function LoginForm() {
         </form>
       </CardContent>
     </>
+  );
+}
+
+function TwoFactorVerification({
+  onSuccess,
+  onCancel,
+  identifier,
+  password,
+}: {
+  onSuccess: () => void;
+  onCancel: () => void;
+  identifier: string;
+  password: string;
+}) {
+  const { translations: t } = useContext(LanguageContext);
+  const [token, setToken] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const loginMutation = useLogin();
+  const handleVerify = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
+
+    try {
+      const response = await loginMutation.mutateAsync({
+        identifier,
+        password,
+        token,
+      });
+      toast.success("2FA verification successful!");
+      onSuccess();
+    } catch (error) {
+      console.error("2FA verification failed:", error);
+      toast.error("Invalid verification code. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <Card className="w-full max-w-md shadow-xl p-2 bg-white dark:bg-neutral-900 dark:border-neutral-800">
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <Key className="h-5 w-5" />
+          {t.auth.twoFactorAuth || "Two-Factor Authentication"}
+        </CardTitle>
+        <CardDescription>
+          {t.auth.enterVerificationCode ||
+            "Enter the 6-digit code from your authenticator app"}
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <form onSubmit={handleVerify} className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="token">
+              {t.auth.verificationCode || "Verification Code"}
+            </Label>
+            <Input
+              id="token"
+              type="text"
+              inputMode="numeric"
+              pattern="[0-9]*"
+              maxLength={6}
+              className="text-center text-2xl tracking-widest"
+              placeholder="123456"
+              value={token}
+              onChange={(e) => setToken(e.target.value.replace(/[^0-9]/g, ""))}
+              required
+              autoFocus
+            />
+          </div>
+          <div className="flex gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              className="w-1/2"
+              onClick={onCancel}
+            >
+              {t.auth.back || "Back"}
+            </Button>
+            <Button
+              type="submit"
+              className="w-1/2"
+              disabled={isLoading || token.length !== 6}
+            >
+              {isLoading
+                ? t.auth.verifying || "Verifying..."
+                : t.auth.verify || "Verify"}
+            </Button>
+          </div>
+        </form>
+      </CardContent>
+    </Card>
   );
 }
 

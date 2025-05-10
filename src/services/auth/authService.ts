@@ -3,10 +3,10 @@ import apiClient from "../apiClient";
 const authService = {
   login: async (credentials: any) => {
     const response = await apiClient.post("/auth/login", credentials);
-    // if (response.data.tokens) {
-    //   localStorage.setItem("token", response.data.tokens);
-    // }
-    // return response.data;
+    if (response.data.accessToken) {
+      localStorage.setItem("token", response.data.accessToken);
+    }
+    return response.data;
   },
 
   logout: async () => {
