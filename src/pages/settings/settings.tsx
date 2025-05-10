@@ -19,6 +19,7 @@ import { ThemeSwitcher } from "@/components/theme-switcher";
 import { LanguageContext } from "@/lib/language-context";
 import { FaShieldAlt } from "react-icons/fa";
 import { SecurityTab } from "./components/SecurityTab";
+import { AccountTab } from "./components/AccountTab";
 
 export function Settings() {
   const { translations } = useContext(LanguageContext);
@@ -169,7 +170,7 @@ export function Settings() {
         </TabsContent>
 
         <TabsContent value="account">
-          <Card>
+          {/* <Card>
             <CardHeader>
               <CardTitle>{translations.account}</CardTitle>
               <CardDescription>
@@ -181,7 +182,8 @@ export function Settings() {
                 {translations.accountSettingsContent}
               </p>
             </CardContent>
-          </Card>
+          </Card> */}
+          <AccountTab />
         </TabsContent>
 
         <TabsContent value="notifications">
