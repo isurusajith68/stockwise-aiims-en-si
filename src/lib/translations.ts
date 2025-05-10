@@ -381,6 +381,7 @@ export const translations = {
       loggingIn: "Logging in...",
       creatingAccount: "Creating Account...",
       passwordMismatch: "Passwords do not match",
+      emailOrUsername: "Email or Username",
     },
     footer: {
       allRightsReserved: "All Rights Reserved",
@@ -771,6 +772,7 @@ export const translations = {
       loggingIn: "පිවිසෙමින්...",
       creatingAccount: "ගිණුම සාදමින්...",
       passwordMismatch: "මුරපද නොගැලපේ",
+      emailOrUsername: "විද්‍යුත් තැපෑල හෝ පරිශීලක නාමය",
     },
     footer: {
       allRightsReserved: "සියලුම හිමිකම් ඇවිරිණි",

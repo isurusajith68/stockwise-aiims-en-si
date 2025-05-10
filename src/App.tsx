@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "@/components/theme-provider";
-import { Toaster } from "@/components/ui/toaster";
+import { Toaster } from "react-hot-toast";
 import { Dashboard } from "@/pages/dashboard/dashboard";
 import { Products } from "@/pages/products/products";
 import { Suppliers } from "@/pages/suppliers/suppliers";
@@ -76,7 +76,7 @@ function App() {
             </Route>
           </Routes>
         </BrowserRouter>
-        <Toaster />
+        <Toaster position="bottom-right" />
       </ThemeProvider>
     </LanguageContext.Provider>
   );

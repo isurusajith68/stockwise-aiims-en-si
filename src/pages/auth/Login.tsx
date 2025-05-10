@@ -19,6 +19,8 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate } from "react-router-dom";
 import { ThemeSwitcher } from "@/components/theme-switcher";
+import { useLogin } from "@/hooks/auth/useAuth";
+import toast from "react-hot-toast";
 
 export default function AuthPages() {
   const [activeTab, setActiveTab] = useState("login");
@@ -66,21 +68,24 @@ export default function AuthPages() {
 
 function LoginForm() {
   const { translations: t } = useContext(LanguageContext);
-  const [email, setEmail] = useState("");
+  const [identifier, setIdentifier] = useState(""); // Identifier for email or username
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
-  const handleLogin = async (e) => {
+  const loginMutation = useLogin();
+
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      console.log("Login with:", { email, password });
-      navigate("/dashboard");
+      await loginMutation.mutateAsync({ identifier, password }); // Use identifier instead of email
+      toast.success("Login successful!");
+      // navigate(0); // Refresh the page after successful login
     } catch (error) {
       console.error("Login failed:", error);
+      toast.error("Login failed. Please check your credentials and try again.");
     } finally {
       setIsLoading(false);
     }
@@ -95,15 +100,15 @@ function LoginForm() {
       <CardContent>
         <form onSubmit={handleLogin} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="email">{t.auth.email}</Label>
+            <Label htmlFor="identifier">{t.auth.emailOrUsername}</Label>
             <Input
-              id="email"
-              type="email"
-              placeholder={t.auth.emailPlaceholder}
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              id="identifier"
+              type="text"
+              placeholder={t.auth.emailOrUsernamePlaceholder}
+              value={identifier}
+              onChange={(e) => setIdentifier(e.target.value)}
               required
-              autoComplete="email"
+              autoComplete="username"
             />
           </div>
           <div className="space-y-2">
