@@ -23,7 +23,7 @@ export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
       setError(error?.message || "Authentication failed");
       setLoading(false);
     } else if (data) {
-      setUser(data);
+      setUser(data.data);
       setLoading(false);
     }
   }, [data, isError, error, isAuthLoading, setLoading, setUser, setError]);
@@ -56,7 +56,7 @@ export const ProtectedRouteWithRedirect = ({
       setError(error?.message || "Authentication failed");
       setLoading(false);
     } else if (data) {
-      setUser(data);
+      setUser(data.data);
       setLoading(false);
     }
   }, [data, isError, error, isAuthLoading, setLoading, setUser, setError]);

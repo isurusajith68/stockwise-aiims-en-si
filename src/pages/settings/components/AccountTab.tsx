@@ -1,5 +1,8 @@
 import { useState, useContext } from "react";
 import { toast } from "react-hot-toast";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 import {
   Card,
   CardContent,
@@ -16,77 +19,107 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { LanguageContext } from "@/lib/language-context";
 import { FaUser, FaTrash, FaDownload } from "react-icons/fa";
 import {
-  User,
   Mail,
   Phone,
   Calendar,
   Building,
   AlertCircle,
   Save,
+  User2,
 } from "lucide-react";
+import { useAuthStore } from "@/store/authStore";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+
+// Define the form schema using Zod
+const profileFormSchema = z.object({
+  username: z
+    .string()
+    .min(3, {
+      message: "Username must be at least 3 characters.",
+    })
+    .regex(/^[a-zA-Z0-9_]+$/, {
+      message: "Username can only contain letters, numbers, and underscores.",
+    }),
+  email: z.string().email({
+    message: "Please enter a valid email address.",
+  }),
+  phone: z.string().optional(),
+  companyName: z.string().optional(),
+});
+
+// Infer the type from the schema
+type ProfileFormValues = z.infer<typeof profileFormSchema>;
 
 export function AccountTab() {
   const { translations } = useContext(LanguageContext);
-  const [userData, setUserData] = useState({
-    username: "john_doe",
-    email: "john.doe@example.com",
-    fullName: "John Doe",
-    phone: "+94 77 123 4567",
-    companyName: "My Grocery Store",
-    joinDate: "January 15, 2023",
-  });
-
+  const { user } = useAuthStore();
   const [profileImage, setProfileImage] = useState<string | null>(null);
   const [isEditing, setIsEditing] = useState(false);
-
-  const handleInputChange = (e: { target: { name: any; value: any } }) => {
-    const { name, value } = e.target;
-    setUserData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+  console.log("User data:", user);
+  const userData = {
+    username: user?.username || "johndoe",
+    email: user?.email || "john.doe@example.com",
+    phone: user?.phone || "+1 (555) 123-4567",
+    companyName: user?.companyName || "Acme Inc.",
+    joinDate: user?.createdAt || "January 15, 2023",
+    role: user?.role || "user",
   };
 
-  const handleProfileUpdate = () => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(userData.email)) {
-      toast.error(
-        translations.invalidEmail || "Please enter a valid email address"
+  const form = useForm<ProfileFormValues>({
+    resolver: zodResolver(profileFormSchema),
+    defaultValues: {
+      username: userData.username,
+      email: userData.email,
+      phone: userData.phone || "",
+      companyName: userData.companyName || "",
+    },
+    mode: "onChange",
+  });
+
+  const handleProfileUpdate = async (values: ProfileFormValues) => {
+    try {
+      console.log("Form values to submit:", values);
+
+      toast.success(
+        translations.profileUpdated || "Profile updated successfully"
       );
-      return;
+      setIsEditing(false);
+    } catch (error) {
+      console.error("Error updating profile:", error);
+      toast.error(translations.updateError || "Failed to update profile");
     }
-
-    const phoneRegex = /^\+?[0-9\s-]{7,15}$/;
-    if (!phoneRegex.test(userData.phone)) {
-      toast.error(
-        translations.invalidPhone || "Please enter a valid phone number"
-      );
-      return;
-    }
-
-    toast.promise(new Promise((resolve) => setTimeout(resolve, 1000)), {
-      loading: translations.updatingProfile || "Updating profile...",
-      success: translations.profileUpdated || "Profile updated successfully!",
-      error: translations.profileUpdateError || "Failed to update profile",
-    });
-
-    setIsEditing(false);
   };
 
-  const handleImageChange = (e) => {
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      setProfileImage(URL.createObjectURL(e.target.files[0]));
+      const file = e.target.files[0];
+      setProfileImage(URL.createObjectURL(file));
+
+      // Here you would typically upload the image to your server
+      // const formData = new FormData();
+      // formData.append("profileImage", file);
+      // await uploadProfileImage(formData);
+
       toast.success(translations.imageUploaded || "Profile image uploaded");
     }
   };
 
   const handleExportData = () => {
+    // Implement data export functionality
     toast.success(
       translations.dataExported || "Account data exported successfully"
     );
   };
 
   const handleDeleteAccount = () => {
+    // Implement account deletion functionality
     toast.error(
       translations.accountDeletedWarning ||
         "Account deletion initiated. Please check your email to confirm."
@@ -99,6 +132,15 @@ export function AccountTab() {
       .map((part) => part[0])
       .join("")
       .toUpperCase();
+  };
+
+  const formatDate = (dateString: string) => {
+    const options: Intl.DateTimeFormatOptions = {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    };
+    return new Date(dateString).toLocaleDateString(undefined, options);
   };
 
   return (
@@ -114,153 +156,175 @@ export function AccountTab() {
               "Update your account details and profile information"}
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="flex flex-col sm:flex-row gap-6 items-center">
-            <div className="relative">
-              <Avatar className="h-24 w-24">
-                {profileImage ? (
-                  <AvatarImage src={profileImage} alt={userData.fullName} />
-                ) : (
-                  <AvatarFallback className="text-2xl">
-                    {getInitials(userData.fullName)}
-                  </AvatarFallback>
-                )}
-              </Avatar>
 
-              <div className="mt-2 flex justify-center">
-                <label htmlFor="profile-image" className="cursor-pointer">
-                  <input
-                    id="profile-image"
-                    type="file"
-                    accept="image/*"
-                    className="hidden"
-                    onChange={handleImageChange}
-                  />
-                  <span className="text-sm text-primary hover:underline">
-                    {translations.changePhoto || "Change photo"}
-                  </span>
-                </label>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(handleProfileUpdate)}>
+            <CardContent className="space-y-6">
+              <div className="flex flex-col sm:flex-row gap-6 items-center">
+                <div className="relative">
+                  <Avatar className="h-24 w-24">
+                    {profileImage ? (
+                      <AvatarImage src={profileImage} alt={userData.username} />
+                    ) : (
+                      <AvatarFallback className="text-2xl">
+                        {getInitials(userData.username)}
+                      </AvatarFallback>
+                    )}
+                  </Avatar>
+
+                  <div className="mt-2 flex justify-center">
+                    <label htmlFor="profile-image" className="cursor-pointer">
+                      <input
+                        id="profile-image"
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={handleImageChange}
+                        disabled={!isEditing}
+                      />
+                      {/* <span className="text-sm text-primary hover:underline">
+                        {translations.changePhoto || "Change photo"}
+                      </span> */}
+                    </label>
+                  </div>
+                </div>
+
+                <div className="space-y-1 text-center sm:text-left">
+                  <h3 className="text-xl font-semibold">{userData.username}</h3>
+                  <p className="text-muted-foreground">@{userData.username}</p>
+                  <div className="flex items-center gap-2 mt-1 justify-center sm:justify-start">
+                    <Badge variant="outline">
+                      {userData.role === "admin"
+                        ? translations.admin || "Admin"
+                        : translations.user || "User"}
+                    </Badge>
+                    <Badge variant="outline">
+                      {translations.freeAccount || "Free Account"}
+                    </Badge>
+                  </div>
+                </div>
               </div>
-            </div>
 
-            <div className="space-y-1 text-center sm:text-left">
-              <h3 className="text-xl font-semibold">{userData.fullName}</h3>
-              <p className="text-muted-foreground">@{userData.username}</p>
-              <div className="flex items-center gap-2 mt-1 justify-center sm:justify-start">
-                <Badge variant="outline">
-                  {translations.storeOwner || "Store Owner"}
-                </Badge>
-                <Badge variant="outline">
-                  {translations.freeAccount || "Free Account"}
-                </Badge>
-              </div>
-            </div>
-          </div>
+              <Separator />
 
-          <Separator />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="username"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>
+                        {translations.username || "Username"}
+                      </FormLabel>
+                      <FormControl>
+                        <div className="flex items-center space-x-2">
+                          <User2 className="h-4 w-4 text-muted-foreground" />
+                          <Input {...field} disabled={!isEditing} />
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <label className="text-sm font-medium leading-none">
-                {translations.fullName || "Full Name"}
-              </label>
-              <Input
-                name="fullName"
-                value={userData.fullName}
-                onChange={handleInputChange}
-                disabled={!isEditing}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-sm font-medium leading-none">
-                {translations.username || "Username"}
-              </label>
-              <Input
-                name="username"
-                value={userData.username}
-                onChange={handleInputChange}
-                disabled={!isEditing}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-sm font-medium leading-none">
-                {translations.email || "Email Address"}
-              </label>
-              <div className="flex items-center space-x-2">
-                <Mail className="h-4 w-4 text-muted-foreground" />
-                <Input
+                <FormField
+                  control={form.control}
                   name="email"
-                  value={userData.email}
-                  onChange={handleInputChange}
-                  disabled={!isEditing}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>
+                        {translations.email || "Email Address"}
+                      </FormLabel>
+                      <FormControl>
+                        <div className="flex items-center space-x-2">
+                          <Mail className="h-4 w-4 text-muted-foreground" />
+                          <Input {...field} disabled={!isEditing} />
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
-              </div>
-            </div>
 
-            <div className="space-y-2">
-              <label className="text-sm font-medium leading-none">
-                {translations.phoneNumber || "Phone Number"}
-              </label>
-              <div className="flex items-center space-x-2">
-                <Phone className="h-4 w-4 text-muted-foreground" />
-                <Input
+                <FormField
+                  control={form.control}
                   name="phone"
-                  value={userData.phone}
-                  onChange={handleInputChange}
-                  disabled={!isEditing}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>
+                        {translations.phoneNumber || "Phone Number"}
+                      </FormLabel>
+                      <FormControl>
+                        <div className="flex items-center space-x-2">
+                          <Phone className="h-4 w-4 text-muted-foreground" />
+                          <Input {...field} disabled={!isEditing} />
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
-              </div>
-            </div>
 
-            <div className="space-y-2">
-              <label className="text-sm font-medium leading-none">
-                {translations.companyName || "Company Name"}
-              </label>
-              <div className="flex items-center space-x-2">
-                <Building className="h-4 w-4 text-muted-foreground" />
-                <Input
+                <FormField
+                  control={form.control}
                   name="companyName"
-                  value={userData.companyName}
-                  onChange={handleInputChange}
-                  disabled={!isEditing}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>
+                        {translations.companyName || "Company Name"}
+                      </FormLabel>
+                      <FormControl>
+                        <div className="flex items-center space-x-2">
+                          <Building className="h-4 w-4 text-muted-foreground" />
+                          <Input {...field} disabled={!isEditing} />
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
-              </div>
-            </div>
 
-            <div className="space-y-2">
-              <label className="text-sm font-medium leading-none">
-                {translations.joinDate || "Join Date"}
-              </label>
-              <div className="flex items-center space-x-2">
-                <Calendar className="h-4 w-4 text-muted-foreground" />
-                <Input value={userData.joinDate} disabled />
+                <div className="space-y-2">
+                  <FormLabel>{translations.joinDate || "Join Date"}</FormLabel>
+                  <div className="flex items-center space-x-2">
+                    <Calendar className="h-4 w-4 text-muted-foreground" />
+                    <Input
+                      value={formatDate(userData.joinDate)}
+                      readOnly
+                      disabled
+                    />
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
-        </CardContent>
-        <CardFooter className="flex flex-col sm:flex-row sm:justify-between gap-4">
-          {isEditing ? (
-            <div className="flex gap-2 w-full sm:w-auto">
-              <Button onClick={handleProfileUpdate} className="flex-1">
-                <Save className="h-4 w-4 mr-2" />
-                {translations.saveChanges || "Save Changes"}
-              </Button>
-              <Button
-                variant="outline"
-                onClick={() => setIsEditing(false)}
-                className="flex-1"
-              >
-                {translations.cancel || "Cancel"}
-              </Button>
-            </div>
-          ) : (
-            <Button onClick={() => setIsEditing(true)}>
-              {translations.editProfile || "Edit Profile"}
-            </Button>
-          )}
-        </CardFooter>
+            </CardContent>
+
+            <CardFooter className="flex flex-col sm:flex-row sm:justify-between gap-4">
+              {isEditing ? (
+                <div className="flex gap-2 w-full sm:w-auto">
+                  <Button type="submit" className="flex-1">
+                    <Save className="h-4 w-4 mr-2" />
+                    {translations.saveChanges || "Save Changes"}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => {
+                      setIsEditing(false);
+                      form.reset();
+                    }}
+                    className="flex-1"
+                  >
+                    {translations.cancel || "Cancel"}
+                  </Button>
+                </div>
+              ) : (
+                <Button type="button" onClick={() => setIsEditing(true)}>
+                  {translations.editProfile || "Edit Profile"}
+                </Button>
+              )}
+            </CardFooter>
+          </form>
+        </Form>
       </Card>
 
       {/* Account Management */}

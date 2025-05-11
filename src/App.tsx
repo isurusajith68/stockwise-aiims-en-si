@@ -29,21 +29,9 @@ function App() {
     "en"
   );
 
-  // useEffect(() => {
-  //   // Simulate loading time for demonstration purposes
-  //   const timer = setTimeout(() => {
-  //     setLoading(false);
-  //   }, 1500);
-  //   return () => clearTimeout(timer);
-  // }, []);
-
   const toggleLanguage = () => {
     setLanguage(language === "en" ? "si" : "en");
   };
-
-  // if (loading) {
-  //   return <LoadingScreen />;
-  // }
 
   return (
     <LanguageContext.Provider

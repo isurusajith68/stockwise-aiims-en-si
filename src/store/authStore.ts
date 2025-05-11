@@ -7,6 +7,7 @@ export interface User {
   phone?: string;
   companyName?: string;
   role: string;
+  createdAt: string;
 }
 
 interface AuthState {
