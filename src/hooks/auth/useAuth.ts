@@ -1,5 +1,6 @@
 import authService from "@/services/auth/authService";
-import { useMutation } from "@tanstack/react-query";
+import { User } from "@/store/authStore";
+import { useMutation, useQuery } from "@tanstack/react-query";
 
 export const useLogin = () => {
   return useMutation({
@@ -16,5 +17,14 @@ export const useLogout = () => {
 export const useRefreshToken = () => {
   return useMutation({
     mutationFn: authService.refreshToken,
+  });
+};
+
+export const useAuthMe = (user: User | null) => {
+  return useQuery({
+    queryKey: ["authMe"],
+    queryFn: authService.me,
+    retry: false,
+    enabled: !user,
   });
 };

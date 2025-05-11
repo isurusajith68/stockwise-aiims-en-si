@@ -21,6 +21,7 @@ import { useNavigate } from "react-router-dom";
 import { ThemeSwitcher } from "@/components/theme-switcher";
 import { useLogin } from "@/hooks/auth/useAuth";
 import toast from "react-hot-toast";
+import authService from "@/services/auth/authService";
 
 export default function AuthPages() {
   const [activeTab, setActiveTab] = useState("login");
@@ -77,7 +78,7 @@ function LoginForm() {
   const navigate = useNavigate();
   const loginMutation = useLogin();
 
-  const handleLogin = async (e) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
@@ -86,29 +87,29 @@ function LoginForm() {
         identifier,
         password,
       });
-
+      console.log("Login response:", response);
       if (response.require2FA) {
         setRequires2FA(true);
-        setTokenData(response.tokenData);
-      } else {
-        toast.success("Login successful!");
-        navigate("/dashboard");
+        return;
       }
+      toast.success("Login successful!");
+      navigate("/dashboard");
     } catch (error) {
       console.error("Login failed:", error);
-      toast.error("Login failed. Please check your credentials and try again.");
+      const errorMessage =
+        (error as { response?: { data?: { message?: string } } })?.response
+          ?.data?.message || "Login failed. Please try again.";
+      toast.error(errorMessage);
     } finally {
       setIsLoading(false);
     }
   };
 
   const handle2FASuccess = () => {
-    // After successful 2FA verification
     navigate("/dashboard");
   };
 
   const handle2FACancel = () => {
-    // User cancels 2FA verification
     setRequires2FA(false);
     setTokenData(null);
   };
@@ -200,12 +201,12 @@ function TwoFactorVerification({
   const [token, setToken] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const loginMutation = useLogin();
-  const handleVerify = async (e) => {
+  const handleVerify = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
     try {
-      const response = await loginMutation.mutateAsync({
+      await loginMutation.mutateAsync({
         identifier,
         password,
         token,
@@ -280,14 +281,23 @@ function TwoFactorVerification({
 const signupSchema = z
   .object({
     name: z.string().min(2, "Full name is required"),
-    company: z.string().min(2, "Company name is required"),
+    companyName: z.string().min(2, "Company name is required"),
     email: z.string().email("Invalid email address"),
-    mobile: z
+    phone: z
       .string()
       .min(10, "Mobile number must be at least 10 digits")
       .max(15, "Mobile number must be at most 15 digits")
       .regex(/^\d+$/, "Mobile number must be numeric"),
-    password: z.string().min(6, "Password must be at least 6 characters"),
+    password: z
+      .string()
+      .min(8, "Password must be at least 8 characters")
+      .regex(/[A-Z]/, "Password must include at least one uppercase letter")
+      .regex(/[a-z]/, "Password must include at least one lowercase letter")
+      .regex(/\d/, "Password must include at least one number")
+      .regex(
+        /[^A-Za-z0-9]/,
+        "Password must include at least one special character"
+      ),
     confirmPassword: z.string(),
   })
   .refine((data) => data.password === data.confirmPassword, {
@@ -299,8 +309,8 @@ type SignupFormData = z.infer<typeof signupSchema>;
 
 export function SignupForm() {
   const { translations: t } = useContext(LanguageContext);
-
-  // 2. Setup RHF with Zod
+  const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
   const {
     register,
     handleSubmit,
@@ -310,16 +320,33 @@ export function SignupForm() {
     resolver: zodResolver(signupSchema),
   });
 
-  // 3. Handle form submit
   const onSubmit = async (data: SignupFormData) => {
-    // TODO: Implement signup logic
-    console.log("Signup data:", data);
-    reset();
+    setIsLoading(true);
+    try {
+      await authService.signup({
+        username: data.name,
+        email: data.email,
+        password: data.password,
+        companyName: data.companyName,
+        phone: data.phone,
+      });
+
+      toast.success(t.auth.accountCreated || "Account created successfully!");
+      reset();
+      navigate("/login");
+    } catch (error) {
+      console.error("Signup failed:", error);
+      const errorMessage =
+        (error as { response?: { data?: { message?: string } } })?.response
+          ?.data?.message || "Signup failed. Please try again.";
+      toast.error(errorMessage);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 p-5">
-      {/* 2-column grid for name and company */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label htmlFor="name">{t.auth.fullName}</Label>
@@ -328,7 +355,7 @@ export function SignupForm() {
             {...register("name")}
             placeholder={t.auth.namePlaceholder}
           />
-          {errors.name && (
+          {errors?.name && (
             <p className="text-red-500 text-xs">{errors.name.message}</p>
           )}
         </div>
@@ -336,40 +363,36 @@ export function SignupForm() {
           <Label htmlFor="company">Company Name</Label>
           <Input
             id="company"
-            {...register("company")}
+            {...register("companyName")}
             placeholder="Enter your company name"
           />
-          {errors.company && (
-            <p className="text-red-500 text-xs">{errors.company.message}</p>
+          {errors?.companyName && (
+            <p className="text-red-500 text-xs">{errors.companyName.message}</p>
           )}
         </div>
       </div>
-      {/* Email */}
       <div className="space-y-2">
         <Label htmlFor="signup-email">{t.auth.email}</Label>
         <Input
           id="signup-email"
-          type="email"
           {...register("email")}
           placeholder={t.auth.emailPlaceholder}
         />
-        {errors.email && (
+        {errors?.email && (
           <p className="text-red-500 text-xs">{errors.email.message}</p>
         )}
       </div>
-      {/* Mobile */}
       <div className="space-y-2">
         <Label htmlFor="mobile">Mobile Number</Label>
         <Input
           id="mobile"
-          {...register("mobile")}
+          {...register("phone")}
           placeholder="Enter your mobile number"
         />
-        {errors.mobile && (
-          <p className="text-red-500 text-xs">{errors.mobile.message}</p>
+        {errors?.phone && (
+          <p className="text-red-500 text-xs">{errors.phone.message}</p>
         )}
       </div>
-      {/* Password and Confirm Password in 2-column grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label htmlFor="signup-password">{t.auth.password}</Label>
@@ -379,7 +402,7 @@ export function SignupForm() {
             {...register("password")}
             placeholder={t.auth.passwordPlaceholder}
           />
-          {errors.password && (
+          {errors?.password && (
             <p className="text-red-500 text-xs">{errors.password.message}</p>
           )}
         </div>
@@ -391,15 +414,21 @@ export function SignupForm() {
             {...register("confirmPassword")}
             placeholder={t.auth.confirmPasswordPlaceholder}
           />
-          {errors.confirmPassword && (
+          {errors?.confirmPassword && (
             <p className="text-red-500 text-xs">
               {errors.confirmPassword.message}
             </p>
           )}
         </div>
       </div>
-      <Button type="submit" className="w-full" disabled={isSubmitting}>
-        {isSubmitting ? t.auth.creatingAccount : t.auth.signup}
+      <Button
+        type="submit"
+        className="w-full"
+        disabled={isSubmitting || isLoading}
+      >
+        {isLoading
+          ? t.auth.creatingAccount || "Creating Account..."
+          : t.auth.signup}
       </Button>
     </form>
   );

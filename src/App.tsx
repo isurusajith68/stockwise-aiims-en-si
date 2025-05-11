@@ -18,6 +18,10 @@ import AddSalePage from "@/pages/sales/add-sale";
 import CustomerManagementPage from "@/pages/coustomer/page";
 import Web from "./pages/web/page";
 import AuthPages from "./pages/auth/Login";
+import {
+  ProtectedRoute,
+  ProtectedRouteWithRedirect,
+} from "./components/auth/ProtectedRoute";
 
 function App() {
   const [language, setLanguage] = useLocalStorage<Language>(
@@ -48,9 +52,22 @@ function App() {
       <ThemeProvider defaultTheme="light" storageKey="stockwise-theme">
         <BrowserRouter>
           <Routes>
-            <Route path="/" element={<Web />} />
+            <Route
+              path="/"
+              element={
+                <ProtectedRouteWithRedirect>
+                  <Web />
+                </ProtectedRouteWithRedirect>
+              }
+            />
             <Route path="/login" element={<AuthPages />} />
-            <Route element={<Layout />}>
+            <Route
+              element={
+                <ProtectedRoute>
+                  <Layout />
+                </ProtectedRoute>
+              }
+            >
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/products" element={<Products />} />
               <Route path="/suppliers" element={<Suppliers />} />
