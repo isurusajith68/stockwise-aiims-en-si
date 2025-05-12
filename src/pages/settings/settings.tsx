@@ -19,18 +19,95 @@ import { LanguageContext } from "@/lib/language-context";
 import { FaShieldAlt } from "react-icons/fa";
 import { SecurityTab } from "./components/SecurityTab";
 import { AccountTab } from "./components/AccountTab";
+import { useAuthStore } from "@/store/authStore";
+import {
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { Tooltip } from "@radix-ui/react-tooltip";
+import { CalendarClock, ChevronRight } from "lucide-react";
 
 export function Settings() {
   const { translations } = useContext(LanguageContext);
+  const { user: userData } = useAuthStore();
+  const getTimeSince = (date: Date | string): string => {
+    const now = new Date();
+    const loginDate = new Date(date);
+    const diffMs = now.getTime() - loginDate.getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMins / 60);
+    const diffDays = Math.floor(diffHours / 24);
 
+    if (diffMins < 60) {
+      return `${diffMins} ${diffMins === 1 ? "minute" : "minutes"} ago`;
+    } else if (diffHours < 24) {
+      return `${diffHours} ${diffHours === 1 ? "hour" : "hours"} ago`;
+    } else {
+      return `${diffDays} ${diffDays === 1 ? "day" : "days"} ago`;
+    }
+  };
+
+  const formatDate = (date: Date | string): string => {
+    const options: Intl.DateTimeFormatOptions = {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+    };
+    return new Date(date).toLocaleString("en-US", options);
+  };
+
+  console.log(userData);
   return (
     <div className="space-y-6 animate-fade-in">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center">
-        <h1 className="text-3xl font-bold tracking-tight">
-          {translations.settings}
-        </h1>
-        <div className="mt-4 sm:mt-0">
-          <Badge variant="outline">{translations.freeAccount}</Badge>
+      <div className="relative p-6 rounded-lg border border-border/40 bg-card/30 backdrop-blur-sm shadow-sm transition-all duration-200 hover:shadow-md">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center">
+          <div className="flex items-center space-x-2">
+            <h1 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white group-hover:text-primary transition-colors">
+              {translations.settings}
+            </h1>
+            <ChevronRight className="h-5 w-5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+          </div>
+
+          <div className="mt-4 sm:mt-0 flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-5">
+            <Badge
+              variant="outline"
+              className="px-3 py-1 text-xs font-medium bg-primary/5 border-primary/20 text-primary hover:bg-primary/10 transition-colors"
+            >
+              {translations.freeAccount}
+            </Badge>
+
+            <div className="flex items-center space-x-2 group">
+              <CalendarClock className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
+
+              <div className="flex flex-col space-y-0.5">
+                <p className="text-xs text-muted-foreground group-hover:text-foreground transition-colors">
+                  {translations.lastLogin || "Last Login"}
+                </p>
+
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <span className="text-xs text-primary font-medium cursor-default hover:underline">
+                        {getTimeSince(
+                          userData?.lastLogin || new Date().toISOString()
+                        )}
+                      </span>
+                    </TooltipTrigger>
+                    <TooltipContent className="bg-popover/95 backdrop-blur-sm border-border/50 shadow-lg">
+                      {userData?.lastLogin && (
+                        <p className="text-xs font-medium text-primary">
+                          {formatDate(userData.lastLogin)}
+                        </p>
+                      )}
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 

@@ -26,6 +26,7 @@ import {
   AlertCircle,
   Save,
   User2,
+  Globe,
 } from "lucide-react";
 import { useAuthStore } from "@/store/authStore";
 import {
@@ -36,6 +37,12 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 // Define the form schema using Zod
 const profileFormSchema = z.object({
@@ -70,6 +77,7 @@ export function AccountTab() {
     companyName: user?.companyName || "Acme Inc.",
     joinDate: user?.createdAt || "January 15, 2023",
     role: user?.role || "user",
+    lastLogin: user?.lastLogin || "2023-10-01T12:00:00Z",
   };
 
   const form = useForm<ProfileFormValues>({
@@ -145,7 +153,6 @@ export function AccountTab() {
 
   return (
     <div className="space-y-6">
-      {/* Profile Section */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -192,6 +199,7 @@ export function AccountTab() {
                 <div className="space-y-1 text-center sm:text-left">
                   <h3 className="text-xl font-semibold">{userData.username}</h3>
                   <p className="text-muted-foreground">@{userData.username}</p>
+
                   <div className="flex items-center gap-2 mt-1 justify-center sm:justify-start">
                     <Badge variant="outline">
                       {userData.role === "admin"

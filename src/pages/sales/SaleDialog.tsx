@@ -2,8 +2,7 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Plus, ShoppingCart } from "lucide-react";
-import { Customer, SaleItem } from "../../types/sales";
-import { ProductType } from "../../types/products";
+
 import { CustomerInfo } from "./CustomerInfo";
 import { ProductSearch } from "./ProductSearch";
 import { SelectedProducts } from "./SelectedProducts";
@@ -18,6 +17,8 @@ import {
   SheetClose,
 } from "@/components/ui/sheet";
 import { Badge } from "@/components/ui/badge";
+import { Customer, SaleItem } from "./types";
+import { ProductType } from "../products/types";
 
 interface SaleDialogProps {
   open: boolean;

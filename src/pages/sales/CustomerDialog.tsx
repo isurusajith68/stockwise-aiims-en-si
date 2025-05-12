@@ -58,6 +58,7 @@ interface CustomerDialogProps {
   setSearchTerm: (term: string) => void;
   translations: Record<string, string>;
   from: string;
+  filteredCustomers: Customer[];
 }
 
 const customerSchema = z.object({

@@ -40,8 +40,7 @@ export function LowStockAlert() {
             
             <Progress 
               value={percentage} 
-              className={`h-2 ${isVeryLow ? 'bg-destructive/20' : 'bg-primary/20'}`}
-              indicatorClassName={isVeryLow ? 'bg-destructive' : undefined}
+              className={`h-2 ${isVeryLow ? 'bg-destructive/20 bg-destructive' : 'bg-primary/20 bg-primary'}`}
             />
             
             {item.id !== lowStockItems.length && <Separator className="my-3" />}

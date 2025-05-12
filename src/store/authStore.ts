@@ -8,6 +8,7 @@ export interface User {
   companyName?: string;
   role: string;
   createdAt: string;
+  lastLogin: string;
 }
 
 interface AuthState {

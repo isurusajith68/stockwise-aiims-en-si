@@ -115,11 +115,11 @@ function generateBundleRecommendations(sales: Sale[], products: ProductType[]) {
   const coOccurrences: { [key: string]: number } = {};
 
   sales.forEach((sale: Sale) => {
-    if (!Array.isArray(sale.products) || sale.products.length < 2) return; // Skip single-item sales
+    if (!Array.isArray((sale as any).products) || (sale as any).products.length < 2) return; // Skip single-item sales
 
     // For each pair of products in this sale
     for (let i = 0; i < sale.products.length; i++) {
-      for (let j = i + 1; j < sale.products.length; j++) {
+      for (let j = i + 1; j < (sale as any).products.length; j++) {
         const id1 = String(sale.products[i].id);
         const id2 = String(sale.products[j].id);
 

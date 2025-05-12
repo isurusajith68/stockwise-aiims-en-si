@@ -211,14 +211,28 @@ export default function SalesPage() {
     // Update sales with delivery info
     const updatedSales = sales.map((sale) =>
       sale.id === selectedDeliverySale.id
-        ? { ...sale, delivery: { ...data } }
+        ? {
+            ...sale,
+            delivery: {
+              status: data.status || "",
+              address: data.address || "",
+              scheduledDate: data.scheduledDate || "",
+              notes: data.notes || "",
+              trackingInfo: data.trackingInfo || "",
+            },
+          }
         : sale
     );
-
     setSales(updatedSales);
     setSelectedDeliverySale({
       ...selectedDeliverySale,
-      delivery: { ...data },
+      delivery: {
+        status: data.status || DELIVERY_STATUS.NOT_SCHEDULED,
+        address: data.address || "",
+        scheduledDate: data.scheduledDate || "",
+        notes: data.notes || "",
+        trackingInfo: data.trackingInfo || "",
+      },
     });
   };
 
@@ -310,39 +324,23 @@ export default function SalesPage() {
           <label className="block text-sm font-medium mb-1">
             {translations.dateRange || "Date Range"}
           </label>
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button
-                variant="outline"
-                className={
-                  "w-[220px] justify-start text-left font-normal" +
-                  (!dateRange.from && !dateRange.to
-                    ? " text-muted-foreground"
-                    : "")
-                }
-              >
-                {dateRange.from && dateRange.to
-                  ? `${format(dateRange.from, "yyyy-MM-dd")} - ${format(
-                      dateRange.to,
-                      "yyyy-MM-dd"
-                    )}`
-                  : dateRange.from
-                  ? `${format(dateRange.from, "yyyy-MM-dd")} - ...`
-                  : translations.selectRange || "Select date range"}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0" align="start">
-              <Calendar
-                mode="range"
-                selected={dateRange}
-                onSelect={(range) =>
-                  setDateRange(range ?? { from: undefined, to: undefined })
-                }
-                numberOfMonths={2}
-                initialFocus
-              />
-            </PopoverContent>
-          </Popover>
+          <DatePicker
+            selectsRange
+            selected={dateRange.from ? new Date(dateRange.from) : null}
+            startDate={dateRange.from ? new Date(dateRange.from) : null}
+            endDate={dateRange.to ? new Date(dateRange.to) : null}
+            onChange={(dates) => {
+              const [start, end] = dates as [Date | null, Date | null];
+              setDateRange({
+                from: start ?? undefined,
+                to: end ?? undefined,
+              });
+            }}
+            showTimeSelect
+            dateFormat="Pp"
+            className="w-full rounded border px-2 py-1 bg-background"
+            placeholderText="Select date range"
+          />
         </div>
         <Button
           variant="outline"
@@ -852,9 +850,10 @@ export default function SalesPage() {
                           {translations.scheduledDate || "Scheduled Date"}
                         </FormLabel>
                         <DatePicker
+                          selectsMultiple
                           selected={field.value ? new Date(field.value) : null}
                           onChange={(date) =>
-                            field.onChange(date ? date.toISOString() : "")
+                            field.onChange(date ? date.toString() : "")
                           }
                           showTimeSelect
                           dateFormat="Pp"

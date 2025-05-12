@@ -28,6 +28,9 @@ export type SaleItem = {
 };
 
 export type Sale = {
+  customer: any;
+  products: any;
+  total: number;
   id: number;
   items: SaleItem[];
   date: string;

@@ -84,10 +84,21 @@ const dummySales = [
     productId: 0,
     quantity: 0,
     customer: "John Doe",
-    products: [
-      { id: 1, quantity: 5, price: 10 },
-      { id: 2, quantity: 2, price: 20 },
+    customerType: "regular" as const,
+    paymentMethod: "credit" as const,
+    customerId: "101",
+    items: [
+      { id: 1, productId: 1, quantity: 5, price: 10, discount: 0, total: 50 },
+      { id: 2, productId: 2, quantity: 2, price: 20, discount: 0, total: 40 },
     ],
+    products: [
+      { id: 1, name: "Product A", price: 10, quantity: 5 },
+      { id: 2, name: "Product B", price: 20, quantity: 2 },
+    ],
+    customerName: "John Doe",
+    totalAmount: 200,
+    customerContactInfo: { email: "john.doe@example.com", primaryPhone: "123-456-7890", secondaryPhone: "987-654-3210" },
+    customerLocationInfo: { address: "123 Main St", city: "Cityville", state: "Stateville", zip: "12345", country: "CountryA", district: "DistrictA" },
   },
   {
     id: 2,
@@ -96,10 +107,21 @@ const dummySales = [
     productId: 0,
     quantity: 0,
     customer: "Jane Smith",
-    products: [
-      { id: 2, quantity: 3, price: 20 },
-      { id: 3, quantity: 1, price: 15 },
+    customerType: "wholesale" as const,
+    paymentMethod: "cash" as const,
+    customerId: "102",
+    items: [
+      { id: 2, productId: 2, quantity: 3, price: 20, discount: 0, total: 60 },
+      { id: 3, productId: 3, quantity: 1, price: 15, discount: 0, total: 15 },
     ],
+    products: [
+      { id: 2, name: "Product B", price: 20, quantity: 3 },
+      { id: 3, name: "Product C", price: 15, quantity: 1 },
+    ],
+    customerName: "Jane Smith",
+    totalAmount: 150,
+    customerContactInfo: { email: "jane.smith@example.com", primaryPhone: "555-123-4567", secondaryPhone: "555-765-4321" },
+    customerLocationInfo: { address: "456 Elm St", city: "Townsville", state: "Stateville", zip: "67890", country: "CountryB", district: "DistrictB" },
   },
 ];
 const dummyExpenses = [

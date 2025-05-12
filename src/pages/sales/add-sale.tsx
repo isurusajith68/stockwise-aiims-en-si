@@ -80,6 +80,9 @@ export default function AddSalePage() {
       totalAmount,
       customerContactInfo: currentCustomer.contactInfo,
       customerLocationInfo: currentCustomer.locationInfo,
+      customer: undefined,
+      products: undefined,
+      total: 0
     };
 
     setSales([...sales, newSale]);

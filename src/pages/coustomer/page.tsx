@@ -278,6 +278,7 @@ export default function CustomerManagementPage() {
           setSearchTerm={() => {}}
           translations={translations}
           from="customer"
+          filteredCustomers={filteredCustomers}
         />
 
         <AlertDialog
