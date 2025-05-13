@@ -22,11 +22,9 @@ import {
   Mail,
   Phone,
   Calendar,
-  Building,
   AlertCircle,
   Save,
   User2,
-  Globe,
 } from "lucide-react";
 import { useAuthStore } from "@/store/authStore";
 import {
@@ -37,12 +35,6 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 
 // Define the form schema using Zod
 const profileFormSchema = z.object({
@@ -58,7 +50,6 @@ const profileFormSchema = z.object({
     message: "Please enter a valid email address.",
   }),
   phone: z.string().optional(),
-  companyName: z.string().optional(),
 });
 
 // Infer the type from the schema
@@ -74,7 +65,6 @@ export function AccountTab() {
     username: user?.username || "johndoe",
     email: user?.email || "john.doe@example.com",
     phone: user?.phone || "+1 (555) 123-4567",
-    companyName: user?.companyName || "Acme Inc.",
     joinDate: user?.createdAt || "January 15, 2023",
     role: user?.role || "user",
     lastLogin: user?.lastLogin || "2023-10-01T12:00:00Z",
@@ -86,7 +76,6 @@ export function AccountTab() {
       username: userData.username,
       email: userData.email,
       phone: userData.phone || "",
-      companyName: userData.companyName || "",
     },
     mode: "onChange",
   });
@@ -265,25 +254,6 @@ export function AccountTab() {
                       <FormControl>
                         <div className="flex items-center space-x-2">
                           <Phone className="h-4 w-4 text-muted-foreground" />
-                          <Input {...field} disabled={!isEditing} />
-                        </div>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="companyName"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>
-                        {translations.companyName || "Company Name"}
-                      </FormLabel>
-                      <FormControl>
-                        <div className="flex items-center space-x-2">
-                          <Building className="h-4 w-4 text-muted-foreground" />
                           <Input {...field} disabled={!isEditing} />
                         </div>
                       </FormControl>

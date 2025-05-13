@@ -360,7 +360,7 @@ export function SignupForm() {
           )}
         </div>
         <div className="space-y-2">
-          <Label htmlFor="company">Company Name</Label>
+          <Label htmlFor="company">Store Name</Label>
           <Input
             id="company"
             {...register("companyName")}
