@@ -48,7 +48,14 @@ function App() {
                 </ProtectedRouteWithRedirect>
               }
             />
-            <Route path="/login" element={<AuthPages />} />
+            <Route
+              path="/login"
+              element={
+                <ProtectedRouteWithRedirect>
+                  <AuthPages />
+                </ProtectedRouteWithRedirect>
+              }
+            />
             <Route
               element={
                 <ProtectedRoute>

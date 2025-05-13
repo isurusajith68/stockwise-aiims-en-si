@@ -68,7 +68,13 @@ apiClient.interceptors.response.use(
       } catch (refreshError) {
         console.error("Failed to refresh token:", refreshError);
         localStorage.removeItem("token");
-        window.location.href = "/login";
+
+        //router in login page dose not redirect to login page otherwise it will redirect to login page
+
+        if (window.location.pathname !== "/") {
+          window.location.href = "/";
+        }
+
         return Promise.reject(refreshError);
       }
     }
