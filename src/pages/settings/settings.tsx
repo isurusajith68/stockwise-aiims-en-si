@@ -136,25 +136,37 @@ export function Settings() {
                   <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
                     {translations.storeName}
                   </label>
-                  <Input defaultValue="My Grocery Store" />
+                  <Input
+                    defaultValue="My Grocery Store"
+                    value={userData?.storeInformation[0]?.storeName}
+                  />
                 </div>
                 <div className="space-y-2">
                   <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
                     {translations.storePhone}
                   </label>
-                  <Input defaultValue="+94 77 123 4567" />
+                  <Input
+                    placeholder="Enter your phone number"
+                    defaultValue={userData?.storeInformation[0]?.storePhone}
+                  />
                 </div>
                 <div className="space-y-2">
                   <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
                     {translations.storeEmail}
                   </label>
-                  <Input defaultValue="contact@mystore.lk" />
+                  <Input
+                    placeholder="Enter your email address"
+                    defaultValue={userData?.storeInformation[0]?.storeEmail}
+                  />
                 </div>
                 <div className="space-y-2">
                   <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
                     {translations.storeAddress}
                   </label>
-                  <Input defaultValue="123 Main Street, Colombo 05" />
+                  <Input
+                    placeholder="Enter your store address"
+                    defaultValue={userData?.storeInformation[0]?.storeAddress}
+                  />
                 </div>
               </div>
             </CardContent>
