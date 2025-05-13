@@ -41,7 +41,6 @@ export function NavbarDemo() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { theme, setTheme } = useTheme();
 
-  // Function to handle smooth scrolling
   const handleSmoothScroll = (e: React.MouseEvent<HTMLAnchorElement>) => {
     const href = e.currentTarget.getAttribute("href");
     if (href && href.startsWith("#")) {
@@ -56,7 +55,6 @@ export function NavbarDemo() {
           block: "start",
         });
 
-        // Update URL without page reload
         window.history.pushState(null, "", href);
       }
     }
@@ -156,14 +154,15 @@ export function NavbarDemo() {
             </a>
           ))}
           <div className="flex w-full flex-col gap-4 mt-4">
-            <NavbarButton
-              onClick={() => setIsMobileMenuOpen(false)}
-              variant="secondary"
-              href="/login"
-              className="w-full text-gray-700 dark:text-gray-200 border border-gray-300 dark:border-gray-700"
-            >
-              Login
-            </NavbarButton>
+            <Link to="/login" className="">
+              <NavbarButton
+                onClick={() => setIsMobileMenuOpen(false)}
+                variant="secondary"
+                className="w-full text-gray-700 dark:text-gray-200 border border-gray-300 dark:border-gray-700"
+              >
+                Login
+              </NavbarButton>
+            </Link>
             <NavbarButton
               onClick={() => setIsMobileMenuOpen(false)}
               href="#cta"

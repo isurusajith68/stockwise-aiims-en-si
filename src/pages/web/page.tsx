@@ -12,9 +12,7 @@ import MagneticScrollButton from "./components/ui/MagneticScrollButton";
 import ChatBot from "./components/ChatBot";
 
 const Web = () => {
-  // Add smooth scrolling effect
   useEffect(() => {
-    // Function to handle smooth scrolling when clicking on navigation links
     const handleSmoothScroll = (e: Event) => {
       const target = e.currentTarget as HTMLAnchorElement;
       const href = target.getAttribute("href");
@@ -28,24 +26,20 @@ const Web = () => {
         if (targetElement) {
           targetElement.scrollIntoView({
             behavior: "smooth",
-            block: "start", // Scroll to the top of the section
+            block: "start", 
           });
 
-          // Update URL without page reload
           window.history.pushState(null, "", href);
         }
       }
     };
 
-    // Select all anchor links that link to sections within the page
     const navLinks = document.querySelectorAll('a[href^="#"]');
 
-    // Attach event listeners for smooth scrolling
     navLinks.forEach((link) => {
       link.addEventListener("click", handleSmoothScroll);
     });
 
-    // Clean up event listeners when component unmounts
     return () => {
       navLinks.forEach((link) => {
         link.removeEventListener("click", handleSmoothScroll);
