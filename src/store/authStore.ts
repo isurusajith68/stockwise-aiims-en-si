@@ -5,10 +5,17 @@ export interface User {
   username: string;
   email: string;
   phone?: string;
-  companyName?: string;
   role: string;
   createdAt: string;
   lastLogin: string;
+  storeInformation?: {
+    id: string;
+    storeName: string;
+    storeAddress: string;
+    storePhone: string;
+    createdAt: string;
+    updatedAt: string;
+  };
 }
 
 interface AuthState {
