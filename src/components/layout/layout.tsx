@@ -22,12 +22,13 @@ import { Separator } from "@/components/ui/separator";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { ThemeSwitcher } from "@/components/theme-switcher";
 import { cn } from "@/lib/utils";
+import { useLogout } from "@/hooks/auth/useAuth";
 
 export function Layout() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const { translations } = useContext(LanguageContext);
-
+  const { mutate: logout } = useLogout();
   const toggleSidebar = () => {
     setSidebarCollapsed(!sidebarCollapsed);
   };
@@ -99,9 +100,13 @@ export function Layout() {
     },
   ];
 
+  const handleLogout = () => {
+    logout();
+    window.location.href = "/";
+  };
+
   return (
     <div className="flex h-screen overflow-hidden bg-background">
-      {/* Mobile Sidebar Toggle */}
       <Button
         variant="ghost"
         size="icon"
@@ -111,7 +116,6 @@ export function Layout() {
         {mobileSidebarOpen ? <X size={24} /> : <Menu size={24} />}
       </Button>
 
-      {/* Sidebar for desktop */}
       <div
         className={cn(
           "hidden md:flex flex-col bg-card border-r border-border transition-all duration-300 ease-in-out",
@@ -196,9 +200,7 @@ export function Layout() {
             <Button
               variant="outline"
               className="w-full flex items-center justify-center gap-2 mt-2 bg-red-600 text-white hover:bg-red-700 hover:text-white"
-              onClick={() => {
-                window.location.href = "/";
-              }}
+              onClick={handleLogout}
             >
               <LogOut className="w-4 h-4" />
               <span>Logout</span>
@@ -207,7 +209,6 @@ export function Layout() {
         </div>
       </div>
 
-      {/* Mobile sidebar overlay */}
       {mobileSidebarOpen && (
         <div
           className="fixed inset-0 bg-background/80 backdrop-blur-sm z-40 md:hidden"
@@ -215,7 +216,6 @@ export function Layout() {
         />
       )}
 
-      {/* Mobile sidebar */}
       <div
         className={cn(
           "fixed inset-y-0 left-0 z-50 w-[240px] bg-card border-r border-border transition-all duration-300 ease-in-out transform md:hidden",
@@ -266,9 +266,7 @@ export function Layout() {
           <Button
             variant="outline"
             className="w-full flex items-center justify-center gap-2 mt-2 bg-red-600 text-white hover:bg-red-700 hover:text-white"
-            onClick={() => {
-              window.location.href = "/";
-            }}
+            onClick={handleLogout}
           >
             <LogOut className="w-4 h-4" />
             <span>Logout</span>
