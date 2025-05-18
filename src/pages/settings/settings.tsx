@@ -39,8 +39,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import toast from "react-hot-toast";
-import authService from "@/services/auth/authService";
-import { useQueryClient } from "@tanstack/react-query";
+import { useUpdateProfile } from "@/hooks/auth/useAuth";
 
 const storeInformationSchema = z.object({
   storeId: z.string().optional(),
@@ -62,7 +61,7 @@ const inventorySettingsSchema = z.object({
 export function Settings() {
   const { translations } = useContext(LanguageContext);
   const { user: userData } = useAuthStore();
-  const queryClient = useQueryClient();
+  const updateProfileMutation = useUpdateProfile();
 
   const storeForm = useForm({
     resolver: zodResolver(storeInformationSchema),
@@ -97,26 +96,24 @@ export function Settings() {
   }, [userData, storeForm]);
 
   const onStoreSubmit = async (data) => {
-    const response = await authService.updateProfile({
-      storeInformation: data,
-    });
-
-    if (response.status === "success") {
-      toast.success(
-        translations.storeInformationUpdated ||
-          "Store information updated successfully"
-      );
-      await queryClient.invalidateQueries({ queryKey: ["authMe"] });
-      await queryClient.refetchQueries({ queryKey: ["authMe"] });
-    }
-    if (response.status === "error") {
-      toast.error(
-        translations.storeInformationUpdateFailed ||
-          "Failed to update store information"
-      );
-    }
-    console.log("Store information submitted:", data);
-    console.log("Response:", response);
+    updateProfileMutation.mutate(
+      { storeInformation: data },
+      {
+        onSuccess: () => {
+          toast.success(
+            translations.storeInformationUpdated ||
+              "Store information updated successfully"
+          );
+        },
+        onError: (error) => {
+          toast.error(
+            translations.storeInformationUpdateFailed ||
+              "Failed to update store information"
+          );
+          console.error("Update error:", error);
+        },
+      }
+    );
   };
 
   const onInventorySubmit = (data) => {

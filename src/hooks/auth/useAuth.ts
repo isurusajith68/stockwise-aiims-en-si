@@ -1,6 +1,6 @@
 import authService from "@/services/auth/authService";
 import { User } from "@/store/authStore";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export const useLogin = () => {
   return useMutation({
@@ -26,5 +26,18 @@ export const useAuthMe = (user: User | null) => {
     queryFn: authService.me,
     retry: false,
     enabled: !user,
+    staleTime: 0,
+    gcTime: 0,
+  });
+};
+
+export const useUpdateProfile = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: authService.updateProfile,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["authMe"] });
+    },
   });
 };
