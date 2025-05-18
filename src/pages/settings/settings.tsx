@@ -39,8 +39,11 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import toast from "react-hot-toast";
+import authService from "@/services/auth/authService";
+import { useQueryClient } from "@tanstack/react-query";
 
 const storeInformationSchema = z.object({
+  storeId: z.string().optional(),
   storeName: z.string().min(1, "Store name is required"),
   storePhone: z.string().min(1, "Store phone is required"),
   storeEmail: z.string().email("Invalid email address"),
@@ -59,10 +62,12 @@ const inventorySettingsSchema = z.object({
 export function Settings() {
   const { translations } = useContext(LanguageContext);
   const { user: userData } = useAuthStore();
+  const queryClient = useQueryClient();
 
   const storeForm = useForm({
     resolver: zodResolver(storeInformationSchema),
     defaultValues: {
+      storeId: "",
       storeName: "",
       storePhone: "",
       storeEmail: "",
@@ -82,6 +87,7 @@ export function Settings() {
   useEffect(() => {
     if (userData) {
       storeForm.reset({
+        storeId: userData.storeInformation?.[0]?.id || "",
         storeName: userData.storeInformation?.[0]?.storeName || "",
         storePhone: userData.storeInformation?.[0]?.storePhone || "",
         storeEmail: userData.storeInformation?.[0]?.storeEmail || "",
@@ -90,9 +96,27 @@ export function Settings() {
     }
   }, [userData, storeForm]);
 
-  const onStoreSubmit = (data) => {
+  const onStoreSubmit = async (data) => {
+    const response = await authService.updateProfile({
+      storeInformation: data,
+    });
+
+    if (response.status === "success") {
+      toast.success(
+        translations.storeInformationUpdated ||
+          "Store information updated successfully"
+      );
+      await queryClient.invalidateQueries({ queryKey: ["authMe"] });
+      await queryClient.refetchQueries({ queryKey: ["authMe"] });
+    }
+    if (response.status === "error") {
+      toast.error(
+        translations.storeInformationUpdateFailed ||
+          "Failed to update store information"
+      );
+    }
     console.log("Store information submitted:", data);
-    toast.success(translations.storeInfoUpdated || "Store information updated");
+    console.log("Response:", response);
   };
 
   const onInventorySubmit = (data) => {
@@ -292,7 +316,9 @@ export function Settings() {
                 </CardContent>
                 <CardFooter>
                   <Button type="submit">
-                    {translations.saveChanges || "Save Changes"}
+                    {storeForm.formState.isSubmitting
+                      ? translations.saving || "Saving..."
+                      : translations.saveChanges || "Save Changes"}
                   </Button>
                 </CardFooter>
               </form>

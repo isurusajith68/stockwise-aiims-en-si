@@ -1,3 +1,4 @@
+import { User } from "@/store/authStore";
 import apiClient from "../apiClient";
 
 interface SignupData {
@@ -44,6 +45,11 @@ const authService = {
 
   me: async () => {
     const response = await apiClient.get("/users/profile");
+    return response.data;
+  },
+
+  updateProfile: async (userData: Partial<User>) => {
+    const response = await apiClient.put("/users/profile", userData);
     return response.data;
   },
 };
