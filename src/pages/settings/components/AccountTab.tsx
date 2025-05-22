@@ -18,14 +18,7 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { LanguageContext } from "@/lib/language-context";
 import { FaUser, FaTrash, FaDownload } from "react-icons/fa";
-import {
-  Mail,
-  Phone,
-  Calendar,
-  AlertCircle,
-  Save,
-  User2,
-} from "lucide-react";
+import { Mail, Phone, Calendar, AlertCircle, Save, User2 } from "lucide-react";
 import { useAuthStore } from "@/store/authStore";
 import {
   Form,
@@ -35,16 +28,17 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { useUpdateProfile } from "@/hooks/auth/useAuth";
 
-// Define the form schema using Zod
 const profileFormSchema = z.object({
   username: z
     .string()
     .min(3, {
       message: "Username must be at least 3 characters.",
     })
-    .regex(/^[a-zA-Z0-9_]+$/, {
-      message: "Username can only contain letters, numbers, and underscores.",
+    .regex(/^[a-zA-Z0-9_ ]+$/, {
+      message:
+        "Username can only contain letters, numbers, underscores, and spaces.",
     }),
   email: z.string().email({
     message: "Please enter a valid email address.",
@@ -52,7 +46,6 @@ const profileFormSchema = z.object({
   phone: z.string().optional(),
 });
 
-// Infer the type from the schema
 type ProfileFormValues = z.infer<typeof profileFormSchema>;
 
 export function AccountTab() {
@@ -60,6 +53,8 @@ export function AccountTab() {
   const { user } = useAuthStore();
   const [profileImage, setProfileImage] = useState<string | null>(null);
   const [isEditing, setIsEditing] = useState(false);
+  const updateProfileMutation = useUpdateProfile();
+
   console.log("User data:", user);
   const userData = {
     username: user?.username || "johndoe",
@@ -82,12 +77,24 @@ export function AccountTab() {
 
   const handleProfileUpdate = async (values: ProfileFormValues) => {
     try {
-      console.log("Form values to submit:", values);
-
-      toast.success(
-        translations.profileUpdated || "Profile updated successfully"
+      updateProfileMutation.mutate(
+        {
+          username: values.username,
+          email: values.email,
+          phone: values.phone,
+        },
+        {
+          onSuccess: () => {
+            toast.success(
+              translations.profileUpdated || "Profile updated successfully"
+            );
+            setIsEditing(false);
+          },
+          onError: () => {
+            toast.error(translations.updateError || "Failed to update profile");
+          },
+        }
       );
-      setIsEditing(false);
     } catch (error) {
       console.error("Error updating profile:", error);
       toast.error(translations.updateError || "Failed to update profile");
@@ -99,24 +106,17 @@ export function AccountTab() {
       const file = e.target.files[0];
       setProfileImage(URL.createObjectURL(file));
 
-      // Here you would typically upload the image to your server
-      // const formData = new FormData();
-      // formData.append("profileImage", file);
-      // await uploadProfileImage(formData);
-
       toast.success(translations.imageUploaded || "Profile image uploaded");
     }
   };
 
   const handleExportData = () => {
-    // Implement data export functionality
     toast.success(
       translations.dataExported || "Account data exported successfully"
     );
   };
 
   const handleDeleteAccount = () => {
-    // Implement account deletion functionality
     toast.error(
       translations.accountDeletedWarning ||
         "Account deletion initiated. Please check your email to confirm."

@@ -25,9 +25,8 @@ export const useAuthMe = (user: User | null) => {
     queryKey: ["authMe"],
     queryFn: authService.me,
     retry: false,
-    enabled: !user,
-    staleTime: 0,
-    gcTime: 0,
+    enabled: true,
+    initialData: user ?? undefined,
   });
 };
 
@@ -37,7 +36,9 @@ export const useUpdateProfile = () => {
   return useMutation({
     mutationFn: authService.updateProfile,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["authMe"] });
+      queryClient.invalidateQueries({
+        queryKey: ["authMe"],
+      });
     },
   });
 };
