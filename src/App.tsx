@@ -22,7 +22,6 @@ import {
   ProtectedRoute,
   ProtectedRouteWithRedirect,
 } from "./components/auth/ProtectedRoute";
-import SupplyChainPage from "./pages/sales/supply-chain";
 
 function App() {
   const [language, setLanguage] = useLocalStorage<Language>(
@@ -71,7 +70,6 @@ function App() {
               <Route path="/reports" element={<Reports />} />
               <Route path="/settings" element={<Settings />} />
               <Route path="/sales" element={<SalesPage />} />
-              <Route path="/sales/supply-chain" element={<SupplyChainPage />} />
               <Route path="/sales/add" element={<AddSalePage />} />
               <Route path="/expenses" element={<ExpensesPage />} />
               <Route
